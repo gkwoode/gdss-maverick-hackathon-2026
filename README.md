@@ -1,7 +1,7 @@
 # IMDB Auto-Fill — Item Master Database Tool
 
 > **GDS Maverick Hackathon 2026**  
-> Automatically extract 10 product attributes from a label image using AI vision, OCR, and barcode detection — then export the results to CSV / Excel for database upload.
+> Automatically extract 13 product attributes from a label image using AI vision, OCR, and barcode detection — then export the results to CSV / Excel for database upload.
 
 ---
 
@@ -29,20 +29,25 @@
           └─────────────────────────────┘
 ```
 
-## 10 IMDB Attributes Extracted
+## 13 IMDB Attributes Extracted
 
-| # | Attribute | Example |
-|---|-----------|---------|
-| 1 | Barcode | `5901234123457` |
-| 2 | Category Type | `Beverages` |
-| 3 | Segment Type | `Carbonated Drinks` |
-| 4 | Manufacturer | `The Coca-Cola Company` |
-| 5 | Brand | `Coca-Cola` |
-| 6 | Product Name | `Coca-Cola Original 500ml` |
-| 7 | Weight / Unit | `500ml` |
-| 8 | Packaging Type | `Bottle` |
-| 9 | Country of Origin | `Ghana` |
-| 10 | Promotional Messages | `No Sugar, New Formula` |
+The output schema matches the hackathon ground-truth CSV exactly.
+
+| # | Column (CSV/Excel header) | Internal field | Example |
+|---|--------------------------|----------------|---------|
+| 1 | `ITEM_NAME` | `item_name` | `Blue Band Margarine Original 500G Tub` |
+| 2 | `BARCODE` | `barcode` | `6001037002252` |
+| 3 | `MANUFACTURER` | `manufacturer` | `Unilever Ghana Ltd` |
+| 4 | `BRAND` | `brand` | `Blue Band` |
+| 5 | `WEIGHT` | `weight` | `500G`, `1.5 KG`, `500 ML` |
+| 6 | `PACKAGING TYPE` | `packaging_type` | `TUB`, `BOTTLE`, `GLASS JAR`, `CAN`, `SACHET` |
+| 7 | `COUNTRY` | `country` | `Ghana`, `South Africa` |
+| 8 | `VARIANT` | `variant` | `ORIGINAL`, `LOW FAT` (empty string if N/A) |
+| 9 | `TYPE` | `product_type` | `MARGARINE`, `MAYONNAISE`, `BUTTER` |
+| 10 | `FRAGRANCE_FLAVOR` | `fragrance_flavor` | `STRAWBERRY`, `VANILLA` (empty string if N/A) |
+| 11 | `PROMOTION` | `promotion` | `50% OFF`, `BUY 2 GET 1 FREE` (empty string if none) |
+| 12 | `ADDONS` | `addons` | `SPOON INCLUDED`, `FREE RECIPE BOOK` (empty string if none) |
+| 13 | `TAGLINE` | `tagline` | `The Original Taste` (empty string if none) |
 
 ---
 
@@ -136,7 +141,7 @@ Upload a product image and receive extracted IMDB attributes.
 ```
 
 ### `GET /api/products/`
-List all IMDB records. Supports query params: `search`, `brand`, `category`, `barcode`, `needs_review`, `page`.
+List all IMDB records. Supports query params: `search`, `brand`, `type`, `barcode`, `needs_review`, `page`.
 
 ### `POST /api/products/`
 Save a new IMDB record.
@@ -147,8 +152,15 @@ Update an existing record.
 ### `GET /api/products/export/?format=csv`
 Download all records as CSV. Use `format=excel` for Excel. Pass `ids=1&ids=2` to export specific records.
 
+### `POST /api/products/analyze_multi/`
+Upload up to 6 images of the same product for higher-confidence multi-angle extraction.
+
+**Request:** `multipart/form-data` with multiple `images` files.
+
+**Response:** Same as `/analyze/` plus `images_processed` and `images_failed` counts.
+
 ### `POST /api/products/check_duplicates/`
-Check a candidate record for potential duplicates by barcode, brand, and product name.
+Check a candidate record for potential duplicates by barcode, or brand + item_name + weight.
 
 ---
 

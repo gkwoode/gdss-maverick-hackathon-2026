@@ -1,0 +1,220 @@
+[
+  {
+    "product_id": "S222775012",
+    "row_index": 3,
+    "images": [
+      "product_images\\S222775012_554946384.jpg",
+      "product_images\\S222775012_554946385.jpg",
+      "product_images\\S222775012_554946386.jpg",
+      "product_images\\S222775012_554946387.jpg"
+    ],
+    "num_images": 4,
+    "labels": {
+      "item_name": "KINGSAM MARGARINE RICH BUTTER TASTE 250G SACHET INDONESIA",
+      "barcode": "8998899333427",
+      "manufacturer": "KING SAM",
+      "brand": "KING SAM",
+      "weight": "250G",
+      "packaging_type": "SACHET",
+      "country": "INDONESIA",
+      "variant": "",
+      "product_type": "BUTTER",
+      "fragrance_flavor": "",
+      "promotion": "",
+      "addons": "",
+      "tagline": "RICH"
+    },
+    "split": "test"
+  },
+  {
+    "product_id": "S225637028",
+    "row_index": 9,
+    "images": [
+      "product_images\\S225637028_565425765.jpg",
+      "product_images\\S225637028_565425766.jpg",
+      "product_images\\S225637028_565425767.jpg",
+      "product_images\\S225637028_565425768.jpg"
+    ],
+    "num_images": 4,
+    "labels": {
+      "item_name": "MAGGI JOLLOF SEASONING PWDR 8G SACHET NESTLE NIGERIA LTD",
+      "barcode": "6151100033369",
+      "manufacturer": "NESTLE",
+      "brand": "MAGGI",
+      "weight": "8G",
+      "packaging_type": "SACHET",
+      "country": "NIGERIA",
+      "variant": "",
+      "product_type": "POWDER",
+      "fragrance_flavor": "JOLLOF",
+      "promotion": "",
+      "addons": "",
+      "tagline": ""
+    },
+    "split": "test"
+  },
+  {
+    "product_id": "S227094844",
+    "row_index": 10,
+    "images": [
+      "product_images\\S227094844_568727215.jpg",
+      "product_images\\S227094844_568727216.jpg",
+      "product_images\\S227094844_568727217.jpg",
+      "product_images\\S227094844_568727218.jpg"
+    ],
+    "num_images": 4,
+    "labels": {
+      "item_name": "MUMMY'S KITCHEN STEW RAGOUT SACHET FAGIP VENTURES",
+      "barcode": "6971336411188",
+      "manufacturer": "FAGIP VENTURES",
+      "brand": "MUMMY'S KITCHEN",
+      "weight": "10G",
+      "packaging_type": "SACHET",
+      "country": "CHINA",
+      "variant": "",
+      "product_type": "POWDER",
+      "fragrance_flavor": "STEW RAGOUT",
+      "promotion": "",
+      "addons": "",
+      "tagline": ""
+    },
+    "split": "test"
+  },
+  {
+    "product_id": "S227303151",
+    "row_index": 11,
+    "images": [
+      "product_images\\S227303151_569242988.jpg",
+      "product_images\\S227303151_569242989.jpg",
+      "product_images\\S227303151_569242990.jpg",
+      "product_images\\S227303151_569242991.jpg"
+    ],
+    "num_images": 4,
+    "labels": {
+      "item_name": "MASEDA SOUP 10G PWDR SACHET HAMTA & SONS LTD",
+      "barcode": "6975385223167",
+      "manufacturer": "HAMTA & SONS LTD",
+      "brand": "MASEDA",
+      "weight": "10G",
+      "packaging_type": "SACHET",
+      "country": "",
+      "variant": "",
+      "product_type": "POWDER",
+      "fragrance_flavor": "SOUP",
+      "promotion": "",
+      "addons": "",
+      "tagline": ""
+    },
+    "split": "test"
+  },
+  {
+    "product_id": "S230284547",
+    "row_index": 24,
+    "images": [
+      "product_images\\S230284547_576205486.jpg"
+    ],
+    "num_images": 1,
+    "labels": {
+      "item_name": "MOK ROSE 100G BOX MEIJI GHANA LTD.",
+      "barcode": "6030057221077",
+      "manufacturer": "LGD LIMITED",
+      "brand": "MOK",
+      "weight": "100G",
+      "packaging_type": "BOX",
+      "country": "GHANA",
+      "variant": "",
+      "product_type": "POWDER",
+      "fragrance_flavor": "ROSE",
+      "promotion": "",
+      "addons": "",
+      "tagline": ""
+    },
+    "split": "test"
+  },
+  {
+    "product_id": "S230690915",
+    "row_index": 25,
+    "images": [
+      "product_images\\S230690915_577091456.jpg",
+      "product_images\\S230690915_577091457.jpg",
+      "product_images\\S230690915_577091458.jpg",
+      "product_images\\S230690915_577091459.jpg",
+      "product_images\\S230690915_577091460.jpg",
+      "product_images\\S230690915_577091461.jpg",
+      "product_images\\S230690915_577091462.jpg",
+      "product_images\\S230690915_577091463.jpg",
+      "product_images\\S230690915_577091464.jpg",
+      "product_images\\S230690915_577091465.jpg"
+    ],
+    "num_images": 10,
+    "labels": {
+      "item_name": "GET 3X1 TOP CLEAN 180G SACHET SDTM",
+      "barcode": "786368779467",
+      "manufacturer": "S.D.T.M",
+      "brand": "GET",
+      "weight": "180G",
+      "packaging_type": "SACHET",
+      "country": "",
+      "variant": "",
+      "product_type": "",
+      "fragrance_flavor": "POWDER",
+      "promotion": "",
+      "addons": "",
+      "tagline": ""
+    },
+    "split": "test"
+  },
+  {
+    "product_id": "S231912790",
+    "row_index": 30,
+    "images": [
+      "product_images\\S231912790_580286901.jpg",
+      "product_images\\S231912790_580286902.jpg",
+      "product_images\\S231912790_580286903.jpg",
+      "product_images\\S231912790_580286904.jpg"
+    ],
+    "num_images": 4,
+    "labels": {
+      "item_name": "MILO SUPPORTS ENERGY RELEASE 400G TIN NESTLE",
+      "barcode": "6033000089199",
+      "manufacturer": "NESTLE",
+      "brand": "MILO",
+      "weight": "400G",
+      "packaging_type": "TIN",
+      "country": "GHANA",
+      "variant": "",
+      "product_type": "",
+      "fragrance_flavor": "",
+      "promotion": "",
+      "addons": "",
+      "tagline": "SUPPORTS ENERGY RELEASE"
+    },
+    "split": "test"
+  },
+  {
+    "product_id": "S233153883",
+    "row_index": 36,
+    "images": [
+      "product_images\\S233153883_583504129.jpg",
+      "product_images\\S233153883_583504130.jpg",
+      "product_images\\S233153883_583504131.jpg"
+    ],
+    "num_images": 3,
+    "labels": {
+      "item_name": "GOLDEN VICTORIA CLOVES 60G 25+5 ENVELOPE TEABAG BOX CARDBOARD JAYAF LTD",
+      "barcode": "",
+      "manufacturer": "MADHU JAYANTI INTERNATIONAL PVT LTD",
+      "brand": "GOLDEN VICTORIA",
+      "weight": "2G",
+      "packaging_type": "BOX",
+      "country": "",
+      "variant": "",
+      "product_type": "",
+      "fragrance_flavor": "CLOVES",
+      "promotion": "",
+      "addons": "5 FREE ENVELOPE",
+      "tagline": ""
+    },
+    "split": "test"
+  }
+]

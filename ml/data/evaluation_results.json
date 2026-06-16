@@ -1,0 +1,559 @@
+{
+  "overall": {
+    "products_evaluated": 5,
+    "overall_field_accuracy": 0.3231,
+    "overall_lev_similarity": 0.3231,
+    "per_field_exact_match": {
+      "item_name": 0.0,
+      "barcode": 0.0,
+      "manufacturer": 0.0,
+      "brand": 0.0,
+      "weight": 0.0,
+      "packaging_type": 0.0,
+      "country": 0.2,
+      "variant": 1.0,
+      "product_type": 0.0,
+      "fragrance_flavor": 0.2,
+      "promotion": 1.0,
+      "addons": 1.0,
+      "tagline": 0.8
+    },
+    "per_field_lev_similarity": {
+      "item_name": 0.0,
+      "barcode": 0.0,
+      "manufacturer": 0.0,
+      "brand": 0.0,
+      "weight": 0.0,
+      "packaging_type": 0.0,
+      "country": 0.2,
+      "variant": 1.0,
+      "product_type": 0.0,
+      "fragrance_flavor": 0.2,
+      "promotion": 1.0,
+      "addons": 1.0,
+      "tagline": 0.8
+    }
+  },
+  "per_product": [
+    {
+      "product_id": "S222775012",
+      "num_images": 4,
+      "field_scores": {
+        "item_name": {
+          "predicted": "",
+          "ground_truth": "KINGSAM MARGARINE RICH BUTTER TASTE 250G SACHET INDONESIA",
+          "exact_match": 0,
+          "non_empty": 0,
+          "lev_sim": 0.0
+        },
+        "barcode": {
+          "predicted": "",
+          "ground_truth": "8998899333427",
+          "exact_match": 0,
+          "non_empty": 0,
+          "lev_sim": 0.0
+        },
+        "manufacturer": {
+          "predicted": "",
+          "ground_truth": "KING SAM",
+          "exact_match": 0,
+          "non_empty": 0,
+          "lev_sim": 0.0
+        },
+        "brand": {
+          "predicted": "",
+          "ground_truth": "KING SAM",
+          "exact_match": 0,
+          "non_empty": 0,
+          "lev_sim": 0.0
+        },
+        "weight": {
+          "predicted": "",
+          "ground_truth": "250G",
+          "exact_match": 0,
+          "non_empty": 0,
+          "lev_sim": 0.0
+        },
+        "packaging_type": {
+          "predicted": "",
+          "ground_truth": "SACHET",
+          "exact_match": 0,
+          "non_empty": 0,
+          "lev_sim": 0.0
+        },
+        "country": {
+          "predicted": "",
+          "ground_truth": "INDONESIA",
+          "exact_match": 0,
+          "non_empty": 0,
+          "lev_sim": 0.0
+        },
+        "variant": {
+          "predicted": "",
+          "ground_truth": "",
+          "exact_match": 1,
+          "non_empty": 0,
+          "lev_sim": 1.0
+        },
+        "product_type": {
+          "predicted": "",
+          "ground_truth": "BUTTER",
+          "exact_match": 0,
+          "non_empty": 0,
+          "lev_sim": 0.0
+        },
+        "fragrance_flavor": {
+          "predicted": "",
+          "ground_truth": "",
+          "exact_match": 1,
+          "non_empty": 0,
+          "lev_sim": 1.0
+        },
+        "promotion": {
+          "predicted": "",
+          "ground_truth": "",
+          "exact_match": 1,
+          "non_empty": 0,
+          "lev_sim": 1.0
+        },
+        "addons": {
+          "predicted": "",
+          "ground_truth": "",
+          "exact_match": 1,
+          "non_empty": 0,
+          "lev_sim": 1.0
+        },
+        "tagline": {
+          "predicted": "",
+          "ground_truth": "RICH",
+          "exact_match": 0,
+          "non_empty": 0,
+          "lev_sim": 0.0
+        }
+      },
+      "summary": {
+        "field_accuracy": 0.3077,
+        "avg_lev_similarity": 0.3077,
+        "coverage": 0.0,
+        "exact_fields": 4,
+        "total_fields": 13
+      }
+    },
+    {
+      "product_id": "S225637028",
+      "num_images": 4,
+      "field_scores": {
+        "item_name": {
+          "predicted": "",
+          "ground_truth": "MAGGI JOLLOF SEASONING PWDR 8G SACHET NESTLE NIGERIA LTD",
+          "exact_match": 0,
+          "non_empty": 0,
+          "lev_sim": 0.0
+        },
+        "barcode": {
+          "predicted": "",
+          "ground_truth": "6151100033369",
+          "exact_match": 0,
+          "non_empty": 0,
+          "lev_sim": 0.0
+        },
+        "manufacturer": {
+          "predicted": "",
+          "ground_truth": "NESTLE",
+          "exact_match": 0,
+          "non_empty": 0,
+          "lev_sim": 0.0
+        },
+        "brand": {
+          "predicted": "",
+          "ground_truth": "MAGGI",
+          "exact_match": 0,
+          "non_empty": 0,
+          "lev_sim": 0.0
+        },
+        "weight": {
+          "predicted": "",
+          "ground_truth": "8G",
+          "exact_match": 0,
+          "non_empty": 0,
+          "lev_sim": 0.0
+        },
+        "packaging_type": {
+          "predicted": "",
+          "ground_truth": "SACHET",
+          "exact_match": 0,
+          "non_empty": 0,
+          "lev_sim": 0.0
+        },
+        "country": {
+          "predicted": "",
+          "ground_truth": "NIGERIA",
+          "exact_match": 0,
+          "non_empty": 0,
+          "lev_sim": 0.0
+        },
+        "variant": {
+          "predicted": "",
+          "ground_truth": "",
+          "exact_match": 1,
+          "non_empty": 0,
+          "lev_sim": 1.0
+        },
+        "product_type": {
+          "predicted": "",
+          "ground_truth": "POWDER",
+          "exact_match": 0,
+          "non_empty": 0,
+          "lev_sim": 0.0
+        },
+        "fragrance_flavor": {
+          "predicted": "",
+          "ground_truth": "JOLLOF",
+          "exact_match": 0,
+          "non_empty": 0,
+          "lev_sim": 0.0
+        },
+        "promotion": {
+          "predicted": "",
+          "ground_truth": "",
+          "exact_match": 1,
+          "non_empty": 0,
+          "lev_sim": 1.0
+        },
+        "addons": {
+          "predicted": "",
+          "ground_truth": "",
+          "exact_match": 1,
+          "non_empty": 0,
+          "lev_sim": 1.0
+        },
+        "tagline": {
+          "predicted": "",
+          "ground_truth": "",
+          "exact_match": 1,
+          "non_empty": 0,
+          "lev_sim": 1.0
+        }
+      },
+      "summary": {
+        "field_accuracy": 0.3077,
+        "avg_lev_similarity": 0.3077,
+        "coverage": 0.0,
+        "exact_fields": 4,
+        "total_fields": 13
+      }
+    },
+    {
+      "product_id": "S227094844",
+      "num_images": 4,
+      "field_scores": {
+        "item_name": {
+          "predicted": "",
+          "ground_truth": "MUMMY'S KITCHEN STEW RAGOUT SACHET FAGIP VENTURES",
+          "exact_match": 0,
+          "non_empty": 0,
+          "lev_sim": 0.0
+        },
+        "barcode": {
+          "predicted": "",
+          "ground_truth": "6971336411188",
+          "exact_match": 0,
+          "non_empty": 0,
+          "lev_sim": 0.0
+        },
+        "manufacturer": {
+          "predicted": "",
+          "ground_truth": "FAGIP VENTURES",
+          "exact_match": 0,
+          "non_empty": 0,
+          "lev_sim": 0.0
+        },
+        "brand": {
+          "predicted": "",
+          "ground_truth": "MUMMY'S KITCHEN",
+          "exact_match": 0,
+          "non_empty": 0,
+          "lev_sim": 0.0
+        },
+        "weight": {
+          "predicted": "",
+          "ground_truth": "10G",
+          "exact_match": 0,
+          "non_empty": 0,
+          "lev_sim": 0.0
+        },
+        "packaging_type": {
+          "predicted": "",
+          "ground_truth": "SACHET",
+          "exact_match": 0,
+          "non_empty": 0,
+          "lev_sim": 0.0
+        },
+        "country": {
+          "predicted": "",
+          "ground_truth": "CHINA",
+          "exact_match": 0,
+          "non_empty": 0,
+          "lev_sim": 0.0
+        },
+        "variant": {
+          "predicted": "",
+          "ground_truth": "",
+          "exact_match": 1,
+          "non_empty": 0,
+          "lev_sim": 1.0
+        },
+        "product_type": {
+          "predicted": "",
+          "ground_truth": "POWDER",
+          "exact_match": 0,
+          "non_empty": 0,
+          "lev_sim": 0.0
+        },
+        "fragrance_flavor": {
+          "predicted": "",
+          "ground_truth": "STEW RAGOUT",
+          "exact_match": 0,
+          "non_empty": 0,
+          "lev_sim": 0.0
+        },
+        "promotion": {
+          "predicted": "",
+          "ground_truth": "",
+          "exact_match": 1,
+          "non_empty": 0,
+          "lev_sim": 1.0
+        },
+        "addons": {
+          "predicted": "",
+          "ground_truth": "",
+          "exact_match": 1,
+          "non_empty": 0,
+          "lev_sim": 1.0
+        },
+        "tagline": {
+          "predicted": "",
+          "ground_truth": "",
+          "exact_match": 1,
+          "non_empty": 0,
+          "lev_sim": 1.0
+        }
+      },
+      "summary": {
+        "field_accuracy": 0.3077,
+        "avg_lev_similarity": 0.3077,
+        "coverage": 0.0,
+        "exact_fields": 4,
+        "total_fields": 13
+      }
+    },
+    {
+      "product_id": "S227303151",
+      "num_images": 4,
+      "field_scores": {
+        "item_name": {
+          "predicted": "",
+          "ground_truth": "MASEDA SOUP 10G PWDR SACHET HAMTA & SONS LTD",
+          "exact_match": 0,
+          "non_empty": 0,
+          "lev_sim": 0.0
+        },
+        "barcode": {
+          "predicted": "",
+          "ground_truth": "6975385223167",
+          "exact_match": 0,
+          "non_empty": 0,
+          "lev_sim": 0.0
+        },
+        "manufacturer": {
+          "predicted": "",
+          "ground_truth": "HAMTA & SONS LTD",
+          "exact_match": 0,
+          "non_empty": 0,
+          "lev_sim": 0.0
+        },
+        "brand": {
+          "predicted": "",
+          "ground_truth": "MASEDA",
+          "exact_match": 0,
+          "non_empty": 0,
+          "lev_sim": 0.0
+        },
+        "weight": {
+          "predicted": "",
+          "ground_truth": "10G",
+          "exact_match": 0,
+          "non_empty": 0,
+          "lev_sim": 0.0
+        },
+        "packaging_type": {
+          "predicted": "",
+          "ground_truth": "SACHET",
+          "exact_match": 0,
+          "non_empty": 0,
+          "lev_sim": 0.0
+        },
+        "country": {
+          "predicted": "",
+          "ground_truth": "",
+          "exact_match": 1,
+          "non_empty": 0,
+          "lev_sim": 1.0
+        },
+        "variant": {
+          "predicted": "",
+          "ground_truth": "",
+          "exact_match": 1,
+          "non_empty": 0,
+          "lev_sim": 1.0
+        },
+        "product_type": {
+          "predicted": "",
+          "ground_truth": "POWDER",
+          "exact_match": 0,
+          "non_empty": 0,
+          "lev_sim": 0.0
+        },
+        "fragrance_flavor": {
+          "predicted": "",
+          "ground_truth": "SOUP",
+          "exact_match": 0,
+          "non_empty": 0,
+          "lev_sim": 0.0
+        },
+        "promotion": {
+          "predicted": "",
+          "ground_truth": "",
+          "exact_match": 1,
+          "non_empty": 0,
+          "lev_sim": 1.0
+        },
+        "addons": {
+          "predicted": "",
+          "ground_truth": "",
+          "exact_match": 1,
+          "non_empty": 0,
+          "lev_sim": 1.0
+        },
+        "tagline": {
+          "predicted": "",
+          "ground_truth": "",
+          "exact_match": 1,
+          "non_empty": 0,
+          "lev_sim": 1.0
+        }
+      },
+      "summary": {
+        "field_accuracy": 0.3846,
+        "avg_lev_similarity": 0.3846,
+        "coverage": 0.0,
+        "exact_fields": 5,
+        "total_fields": 13
+      }
+    },
+    {
+      "product_id": "S230284547",
+      "num_images": 1,
+      "field_scores": {
+        "item_name": {
+          "predicted": "",
+          "ground_truth": "MOK ROSE 100G BOX MEIJI GHANA LTD.",
+          "exact_match": 0,
+          "non_empty": 0,
+          "lev_sim": 0.0
+        },
+        "barcode": {
+          "predicted": "",
+          "ground_truth": "6030057221077",
+          "exact_match": 0,
+          "non_empty": 0,
+          "lev_sim": 0.0
+        },
+        "manufacturer": {
+          "predicted": "",
+          "ground_truth": "LGD LIMITED",
+          "exact_match": 0,
+          "non_empty": 0,
+          "lev_sim": 0.0
+        },
+        "brand": {
+          "predicted": "",
+          "ground_truth": "MOK",
+          "exact_match": 0,
+          "non_empty": 0,
+          "lev_sim": 0.0
+        },
+        "weight": {
+          "predicted": "",
+          "ground_truth": "100G",
+          "exact_match": 0,
+          "non_empty": 0,
+          "lev_sim": 0.0
+        },
+        "packaging_type": {
+          "predicted": "",
+          "ground_truth": "BOX",
+          "exact_match": 0,
+          "non_empty": 0,
+          "lev_sim": 0.0
+        },
+        "country": {
+          "predicted": "",
+          "ground_truth": "GHANA",
+          "exact_match": 0,
+          "non_empty": 0,
+          "lev_sim": 0.0
+        },
+        "variant": {
+          "predicted": "",
+          "ground_truth": "",
+          "exact_match": 1,
+          "non_empty": 0,
+          "lev_sim": 1.0
+        },
+        "product_type": {
+          "predicted": "",
+          "ground_truth": "POWDER",
+          "exact_match": 0,
+          "non_empty": 0,
+          "lev_sim": 0.0
+        },
+        "fragrance_flavor": {
+          "predicted": "",
+          "ground_truth": "ROSE",
+          "exact_match": 0,
+          "non_empty": 0,
+          "lev_sim": 0.0
+        },
+        "promotion": {
+          "predicted": "",
+          "ground_truth": "",
+          "exact_match": 1,
+          "non_empty": 0,
+          "lev_sim": 1.0
+        },
+        "addons": {
+          "predicted": "",
+          "ground_truth": "",
+          "exact_match": 1,
+          "non_empty": 0,
+          "lev_sim": 1.0
+        },
+        "tagline": {
+          "predicted": "",
+          "ground_truth": "",
+          "exact_match": 1,
+          "non_empty": 0,
+          "lev_sim": 1.0
+        }
+      },
+      "summary": {
+        "field_accuracy": 0.3077,
+        "avg_lev_similarity": 0.3077,
+        "coverage": 0.0,
+        "exact_fields": 4,
+        "total_fields": 13
+      }
+    }
+  ]
+}

@@ -1,0 +1,1114 @@
+[
+  {
+    "product_id": "S221234199",
+    "row_index": 0,
+    "images": [
+      "product_images\\S221234199_550719011.jpg",
+      "product_images\\S221234199_550719012.jpg",
+      "product_images\\S221234199_550719013.jpg",
+      "product_images\\S221234199_550719014.jpg"
+    ],
+    "num_images": 4,
+    "labels": {
+      "item_name": "BLUE BAND 250G PLASTIC TUB SPREAD FOR BREAD MARAGARINE SALTED UPFIELD GHANA MANUFACTURING LIMITED",
+      "barcode": "6034000482027",
+      "manufacturer": "UPFIELD",
+      "brand": "BLUE BAND",
+      "weight": "250G",
+      "packaging_type": "TUB",
+      "country": "GHANA",
+      "variant": "ORIGINAL",
+      "product_type": "SALTED MARGARINE",
+      "fragrance_flavor": "",
+      "promotion": "",
+      "addons": "",
+      "tagline": "LOW FAT SPREAD FOR BREAD"
+    },
+    "split": "train"
+  },
+  {
+    "product_id": "S221712802",
+    "row_index": 1,
+    "images": [
+      "product_images\\S221712802_552034736.jpg",
+      "product_images\\S221712802_552034737.jpg",
+      "product_images\\S221712802_552034738.jpg",
+      "product_images\\S221712802_552034739.jpg",
+      "product_images\\S221712802_552034740.jpg"
+    ],
+    "num_images": 5,
+    "labels": {
+      "item_name": "LELE MAYONNAISE 430G GLASS TUB BOTTLE MAYONNAISE AJC GHANA",
+      "barcode": "106060069411",
+      "manufacturer": "AJC TRADING CO LTD",
+      "brand": "LELE",
+      "weight": "430G",
+      "packaging_type": "GLASS JAR",
+      "country": "GHANA",
+      "variant": "",
+      "product_type": "MAYONNAISE",
+      "fragrance_flavor": "",
+      "promotion": "",
+      "addons": "",
+      "tagline": ""
+    },
+    "split": "train"
+  },
+  {
+    "product_id": "S222711495",
+    "row_index": 2,
+    "images": [
+      "product_images\\S222711495_554639782.jpg",
+      "product_images\\S222711495_554639783.jpg",
+      "product_images\\S222711495_554639784.jpg",
+      "product_images\\S222711495_554639785.jpg"
+    ],
+    "num_images": 4,
+    "labels": {
+      "item_name": "BLUE BAND 12G CHOLESTEROL FREE SPREAD FOR BREAD PLSTC SACHET UPFIELD GHANA LTD",
+      "barcode": "6034000482002",
+      "manufacturer": "UPFIELD",
+      "brand": "BLUE BAND",
+      "weight": "12G",
+      "packaging_type": "SACHET",
+      "country": "",
+      "variant": "",
+      "product_type": "SALTED MARGARINE",
+      "fragrance_flavor": "",
+      "promotion": "",
+      "addons": "",
+      "tagline": "CHOLESTEROL FREE SPREAD FOR BREAD"
+    },
+    "split": "train"
+  },
+  {
+    "product_id": "S222775012",
+    "row_index": 3,
+    "images": [
+      "product_images\\S222775012_554946384.jpg",
+      "product_images\\S222775012_554946385.jpg",
+      "product_images\\S222775012_554946386.jpg",
+      "product_images\\S222775012_554946387.jpg"
+    ],
+    "num_images": 4,
+    "labels": {
+      "item_name": "KINGSAM MARGARINE RICH BUTTER TASTE 250G SACHET INDONESIA",
+      "barcode": "8998899333427",
+      "manufacturer": "KING SAM",
+      "brand": "KING SAM",
+      "weight": "250G",
+      "packaging_type": "SACHET",
+      "country": "INDONESIA",
+      "variant": "",
+      "product_type": "BUTTER",
+      "fragrance_flavor": "",
+      "promotion": "",
+      "addons": "",
+      "tagline": "RICH"
+    },
+    "split": "test"
+  },
+  {
+    "product_id": "S222894050",
+    "row_index": 4,
+    "images": [
+      "product_images\\S222894050_555598635.jpg",
+      "product_images\\S222894050_555598636.jpg"
+    ],
+    "num_images": 2,
+    "labels": {
+      "item_name": "ALFA MAYONNAISE 500ML PLASTIC BTTLE AL-AIN NATIONAL JUICE & REFRESHMENT CO.",
+      "barcode": "6291003162947",
+      "manufacturer": "AL AIN COMPANY LTD",
+      "brand": "ALFA",
+      "weight": "500ML",
+      "packaging_type": "PLASTIC BOTTLE",
+      "country": "",
+      "variant": "",
+      "product_type": "MAYONNAISE",
+      "fragrance_flavor": "",
+      "promotion": "",
+      "addons": "",
+      "tagline": ""
+    },
+    "split": "train"
+  },
+  {
+    "product_id": "S222985766",
+    "row_index": 5,
+    "images": [
+      "product_images\\S222985766_556022646.jpg",
+      "product_images\\S222985766_556022647.jpg",
+      "product_images\\S222985766_556022670.jpg"
+    ],
+    "num_images": 3,
+    "labels": {
+      "item_name": "BAMA MAYONNAISE WITH A DASH OF LEMON 909ML GLASS JAR GB FOODS",
+      "barcode": "8410300363439",
+      "manufacturer": "GB FOODS",
+      "brand": "BAMA",
+      "weight": "909ML",
+      "packaging_type": "GLASS JAR",
+      "country": "",
+      "variant": "",
+      "product_type": "MAYONNAISE",
+      "fragrance_flavor": "LEMON",
+      "promotion": "",
+      "addons": "",
+      "tagline": ""
+    },
+    "split": "train"
+  },
+  {
+    "product_id": "S222992219",
+    "row_index": 6,
+    "images": [
+      "product_images\\S222992219_556061319.jpg",
+      "product_images\\S222992219_556061320.jpg",
+      "product_images\\S222992219_556061321.jpg",
+      "product_images\\S222992219_556061322.jpg"
+    ],
+    "num_images": 4,
+    "labels": {
+      "item_name": "ENA PA 1000ML MAYONNAISE GLSS JAR MENKISH IMPEX LTD",
+      "barcode": "5412723502689",
+      "manufacturer": "MENKISH IMPEX",
+      "brand": "ENA PA",
+      "weight": "1L",
+      "packaging_type": "GLASS JAR",
+      "country": "",
+      "variant": "",
+      "product_type": "MAYONNAISE",
+      "fragrance_flavor": "",
+      "promotion": "",
+      "addons": "",
+      "tagline": ""
+    },
+    "split": "train"
+  },
+  {
+    "product_id": "S223266096",
+    "row_index": 7,
+    "images": [
+      "product_images\\S223266096_557429181.jpg",
+      "product_images\\S223266096_557429182.jpg",
+      "product_images\\S223266096_557429183.jpg",
+      "product_images\\S223266096_557429184.jpg"
+    ],
+    "num_images": 4,
+    "labels": {
+      "item_name": "VIBE STRAWBERRY ENERGY 350ML PB COCA COLA COMPANY LTD.",
+      "barcode": "54013988",
+      "manufacturer": "THE COCA COLA COMPANY",
+      "brand": "VIBE",
+      "weight": "350ML",
+      "packaging_type": "PLASTIC BOTTLE",
+      "country": "",
+      "variant": "",
+      "product_type": "",
+      "fragrance_flavor": "STRAWBERRY",
+      "promotion": "",
+      "addons": "",
+      "tagline": ""
+    },
+    "split": "train"
+  },
+  {
+    "product_id": "S223756617",
+    "row_index": 8,
+    "images": [
+      "product_images\\S223756617_559832141.jpg",
+      "product_images\\S223756617_559832142.jpg",
+      "product_images\\S223756617_559832143.jpg",
+      "product_images\\S223756617_559832144.jpg"
+    ],
+    "num_images": 4,
+    "labels": {
+      "item_name": "VIBE ENERGY DRINK 330ML PLASTIC BOTTLE HEMA GLOBAL BEVERAGES",
+      "barcode": "6186001091989",
+      "manufacturer": "THE COCA COLA COMPANY",
+      "brand": "VIBE",
+      "weight": "330ML",
+      "packaging_type": "PLASTIC BOTTLE",
+      "country": "COTE D'IVOIRE",
+      "variant": "",
+      "product_type": "",
+      "fragrance_flavor": "",
+      "promotion": "",
+      "addons": "",
+      "tagline": ""
+    },
+    "split": "train"
+  },
+  {
+    "product_id": "S225637028",
+    "row_index": 9,
+    "images": [
+      "product_images\\S225637028_565425765.jpg",
+      "product_images\\S225637028_565425766.jpg",
+      "product_images\\S225637028_565425767.jpg",
+      "product_images\\S225637028_565425768.jpg"
+    ],
+    "num_images": 4,
+    "labels": {
+      "item_name": "MAGGI JOLLOF SEASONING PWDR 8G SACHET NESTLE NIGERIA LTD",
+      "barcode": "6151100033369",
+      "manufacturer": "NESTLE",
+      "brand": "MAGGI",
+      "weight": "8G",
+      "packaging_type": "SACHET",
+      "country": "NIGERIA",
+      "variant": "",
+      "product_type": "POWDER",
+      "fragrance_flavor": "JOLLOF",
+      "promotion": "",
+      "addons": "",
+      "tagline": ""
+    },
+    "split": "test"
+  },
+  {
+    "product_id": "S227094844",
+    "row_index": 10,
+    "images": [
+      "product_images\\S227094844_568727215.jpg",
+      "product_images\\S227094844_568727216.jpg",
+      "product_images\\S227094844_568727217.jpg",
+      "product_images\\S227094844_568727218.jpg"
+    ],
+    "num_images": 4,
+    "labels": {
+      "item_name": "MUMMY'S KITCHEN STEW RAGOUT SACHET FAGIP VENTURES",
+      "barcode": "6971336411188",
+      "manufacturer": "FAGIP VENTURES",
+      "brand": "MUMMY'S KITCHEN",
+      "weight": "10G",
+      "packaging_type": "SACHET",
+      "country": "CHINA",
+      "variant": "",
+      "product_type": "POWDER",
+      "fragrance_flavor": "STEW RAGOUT",
+      "promotion": "",
+      "addons": "",
+      "tagline": ""
+    },
+    "split": "test"
+  },
+  {
+    "product_id": "S227303151",
+    "row_index": 11,
+    "images": [
+      "product_images\\S227303151_569242988.jpg",
+      "product_images\\S227303151_569242989.jpg",
+      "product_images\\S227303151_569242990.jpg",
+      "product_images\\S227303151_569242991.jpg"
+    ],
+    "num_images": 4,
+    "labels": {
+      "item_name": "MASEDA SOUP 10G PWDR SACHET HAMTA & SONS LTD",
+      "barcode": "6975385223167",
+      "manufacturer": "HAMTA & SONS LTD",
+      "brand": "MASEDA",
+      "weight": "10G",
+      "packaging_type": "SACHET",
+      "country": "",
+      "variant": "",
+      "product_type": "POWDER",
+      "fragrance_flavor": "SOUP",
+      "promotion": "",
+      "addons": "",
+      "tagline": ""
+    },
+    "split": "test"
+  },
+  {
+    "product_id": "S228661692",
+    "row_index": 12,
+    "images": [
+      "product_images\\S228661692_572270415.jpg",
+      "product_images\\S228661692_572270416.jpg",
+      "product_images\\S228661692_572270417.jpg",
+      "product_images\\S228661692_572270418.jpg"
+    ],
+    "num_images": 4,
+    "labels": {
+      "item_name": "TASTY TOM GINGER AND GARLIC 8G SACHET NUTRIFOODS GHANA LIMITED",
+      "barcode": "6033000303264",
+      "manufacturer": "NUTRIFOODS",
+      "brand": "TASTY TOM",
+      "weight": "8G",
+      "packaging_type": "SACHET",
+      "country": "GHANA",
+      "variant": "",
+      "product_type": "POWDER",
+      "fragrance_flavor": "GINGER & GARLIC",
+      "promotion": "",
+      "addons": "",
+      "tagline": ""
+    },
+    "split": "train"
+  },
+  {
+    "product_id": "S229332556",
+    "row_index": 13,
+    "images": [
+      "product_images\\S229332556_573802079.jpg"
+    ],
+    "num_images": 1,
+    "labels": {
+      "item_name": "SISTER BEEF 10G SACHET SISTER SARDINE & MACKEREL",
+      "barcode": "6970679244224",
+      "manufacturer": "SISTER SARDINE & MACKEREL VENTURES",
+      "brand": "SISTER",
+      "weight": "10G",
+      "packaging_type": "SACHET",
+      "country": "GHANA",
+      "variant": "",
+      "product_type": "",
+      "fragrance_flavor": "BEEF",
+      "promotion": "",
+      "addons": "",
+      "tagline": ""
+    },
+    "split": "train"
+  },
+  {
+    "product_id": "S229358414",
+    "row_index": 14,
+    "images": [
+      "product_images\\S229358414_573881286.jpg",
+      "product_images\\S229358414_573881287.jpg",
+      "product_images\\S229358414_573881288.jpg",
+      "product_images\\S229358414_573881289.jpg"
+    ],
+    "num_images": 4,
+    "labels": {
+      "item_name": "SISTER POWDER GINGER AND GARLIC 10G SACHET XIAMAN OASIS FOOD COMPANY LTD",
+      "barcode": "6954096870068",
+      "manufacturer": "SISTER SARDINE & MACKEREL VENTURES",
+      "brand": "SISTER",
+      "weight": "10G",
+      "packaging_type": "SACHET",
+      "country": "CHINA",
+      "variant": "",
+      "product_type": "POWDER",
+      "fragrance_flavor": "GINGER & GARLIC",
+      "promotion": "",
+      "addons": "",
+      "tagline": ""
+    },
+    "split": "train"
+  },
+  {
+    "product_id": "S229382754",
+    "row_index": 15,
+    "images": [
+      "product_images\\S229382754_573936655.jpg",
+      "product_images\\S229382754_573936656.jpg"
+    ],
+    "num_images": 2,
+    "labels": {
+      "item_name": "ROSALINDA NOODLES & SPAGHETTI 10G PWDR SACHET CHINA",
+      "barcode": "6034000975246",
+      "manufacturer": "GEE TRADING SAL",
+      "brand": "ROSALINDA",
+      "weight": "10G",
+      "packaging_type": "SACHET",
+      "country": "",
+      "variant": "",
+      "product_type": "POWDER",
+      "fragrance_flavor": "NOODLES & SPAGHETTI",
+      "promotion": "",
+      "addons": "",
+      "tagline": ""
+    },
+    "split": "train"
+  },
+  {
+    "product_id": "S229468250",
+    "row_index": 16,
+    "images": [
+      "product_images\\S229468250_574108243.jpg",
+      "product_images\\S229468250_574108244.jpg",
+      "product_images\\S229468250_574108245.jpg",
+      "product_images\\S229468250_574108246.jpg"
+    ],
+    "num_images": 4,
+    "labels": {
+      "item_name": "U FRESH ORANGE JUICE DRINK 350ML BTTLE D- U FRESH CO.LTD",
+      "barcode": "6034000210873",
+      "manufacturer": "U-FRESH ENTERPRISES",
+      "brand": "U-FRESH",
+      "weight": "350ML",
+      "packaging_type": "PLASTIC BOTTLE",
+      "country": "",
+      "variant": "",
+      "product_type": "",
+      "fragrance_flavor": "ORANGE",
+      "promotion": "",
+      "addons": "",
+      "tagline": ""
+    },
+    "split": "train"
+  },
+  {
+    "product_id": "S229526979",
+    "row_index": 17,
+    "images": [
+      "product_images\\S229526979_574209802.jpg",
+      "product_images\\S229526979_574209803.jpg",
+      "product_images\\S229526979_574209804.jpg",
+      "product_images\\S229526979_574209805.jpg"
+    ],
+    "num_images": 4,
+    "labels": {
+      "item_name": "KALYPPO 250ML MULTI FRUITS CRTN CRDBRD AQFRSH",
+      "barcode": "9501053210534",
+      "manufacturer": "AQUAFRESH LIMITED",
+      "brand": "KALYPPO",
+      "weight": "250ML",
+      "packaging_type": "TETRA PAK",
+      "country": "",
+      "variant": "",
+      "product_type": "",
+      "fragrance_flavor": "MULTI FRUIT",
+      "promotion": "",
+      "addons": "",
+      "tagline": ""
+    },
+    "split": "train"
+  },
+  {
+    "product_id": "S229664512",
+    "row_index": 18,
+    "images": [
+      "product_images\\S229664512_574505991.jpg",
+      "product_images\\S229664512_574505992.jpg",
+      "product_images\\S229664512_574505993.jpg",
+      "product_images\\S229664512_574505994.jpg"
+    ],
+    "num_images": 4,
+    "labels": {
+      "item_name": "JOJONAVI STRAWBERRY JUICE DRINK 330ML CAN NAT VET PHAT FOOD CO. LIMITED VIETNAM",
+      "barcode": "8936085525966",
+      "manufacturer": "NAM VIET PHAT FOOD CO. LIMITED",
+      "brand": "JOJONAVI",
+      "weight": "330ML",
+      "packaging_type": "CAN",
+      "country": "VIETNAM",
+      "variant": "",
+      "product_type": "",
+      "fragrance_flavor": "STRAWBERRY",
+      "promotion": "",
+      "addons": "",
+      "tagline": ""
+    },
+    "split": "train"
+  },
+  {
+    "product_id": "S229664513",
+    "row_index": 19,
+    "images": [
+      "product_images\\S229664513_574506003.jpg",
+      "product_images\\S229664513_574506004.jpg",
+      "product_images\\S229664513_574506005.jpg",
+      "product_images\\S229664513_574506006.jpg"
+    ],
+    "num_images": 4,
+    "labels": {
+      "item_name": "U FRESH 350ML APPLE BTTL PLST U FRESH CO LTD.",
+      "barcode": "6034000210392",
+      "manufacturer": "U-FRESH ENTERPRISES",
+      "brand": "U-FRESH",
+      "weight": "350ML",
+      "packaging_type": "PLASTIC BOTTLE",
+      "country": "",
+      "variant": "",
+      "product_type": "",
+      "fragrance_flavor": "APPLE",
+      "promotion": "",
+      "addons": "",
+      "tagline": ""
+    },
+    "split": "train"
+  },
+  {
+    "product_id": "S229688224",
+    "row_index": 20,
+    "images": [
+      "product_images\\S229688224_574564715.jpg",
+      "product_images\\S229688224_574564716.jpg",
+      "product_images\\S229688224_574564717.jpg",
+      "product_images\\S229688224_574564718.jpg"
+    ],
+    "num_images": 4,
+    "labels": {
+      "item_name": "ZAA NUTRI MIX INSTANT CEREAL LEGUME FLOOR 60G PWDR SACHET B-DIET LTD TAMALE",
+      "barcode": "6034000396157",
+      "manufacturer": "B-DIET LTD",
+      "brand": "ZAA",
+      "weight": "60G",
+      "packaging_type": "SACHET",
+      "country": "GHANA",
+      "variant": "",
+      "product_type": "",
+      "fragrance_flavor": "LEGUME",
+      "promotion": "",
+      "addons": "",
+      "tagline": ""
+    },
+    "split": "train"
+  },
+  {
+    "product_id": "S229812956",
+    "row_index": 21,
+    "images": [
+      "product_images\\S229812956_574853705.jpg",
+      "product_images\\S229812956_574853706.jpg",
+      "product_images\\S229812956_574853707.jpg",
+      "product_images\\S229812956_574853708.jpg"
+    ],
+    "num_images": 4,
+    "labels": {
+      "item_name": "KADI DETERGENT POWDER 250G SACHET DIAKITE RAMTA COMMERCANTE",
+      "barcode": "6951670938480",
+      "manufacturer": "SENICO",
+      "brand": "KADI",
+      "weight": "250G",
+      "packaging_type": "SACHET",
+      "country": "CHINA",
+      "variant": "",
+      "product_type": "POWDER",
+      "fragrance_flavor": "",
+      "promotion": "",
+      "addons": "",
+      "tagline": ""
+    },
+    "split": "train"
+  },
+  {
+    "product_id": "S230162154",
+    "row_index": 22,
+    "images": [
+      "product_images\\S230162154_575933430.jpg",
+      "product_images\\S230162154_575933431.jpg",
+      "product_images\\S230162154_575933432.jpg"
+    ],
+    "num_images": 3,
+    "labels": {
+      "item_name": "C'PROPRE WASHING POWDER 80G SACHET COTE D'IVOIRE",
+      "barcode": "6951670939081",
+      "manufacturer": "C'PROPRE",
+      "brand": "C'PROPRE",
+      "weight": "80G",
+      "packaging_type": "SACHET",
+      "country": "",
+      "variant": "",
+      "product_type": "",
+      "fragrance_flavor": "POWDER",
+      "promotion": "",
+      "addons": "",
+      "tagline": ""
+    },
+    "split": "train"
+  },
+  {
+    "product_id": "S230256650",
+    "row_index": 23,
+    "images": [
+      "product_images\\S230256650_576140692.jpg",
+      "product_images\\S230256650_576140693.jpg",
+      "product_images\\S230256650_576140694.jpg",
+      "product_images\\S230256650_576140695.jpg",
+      "product_images\\S230256650_576140696.jpg",
+      "product_images\\S230256650_576140697.jpg",
+      "product_images\\S230256650_576140698.jpg",
+      "product_images\\S230256650_576140699.jpg"
+    ],
+    "num_images": 8,
+    "labels": {
+      "item_name": "MOSSE CLEAN GOWNS 3 IN 1 DETERGENT PWDR 80G SACHET SUNDA PURECARE LTD COMPANY",
+      "barcode": "6033000414144",
+      "manufacturer": "HOMEPRO COMPANY LTD",
+      "brand": "MOSSE",
+      "weight": "80G",
+      "packaging_type": "SACHET",
+      "country": "GHANA",
+      "variant": "",
+      "product_type": "",
+      "fragrance_flavor": "",
+      "promotion": "",
+      "addons": "",
+      "tagline": "CLEAN GOWNS 3 IN 1 DETERGENT"
+    },
+    "split": "train"
+  },
+  {
+    "product_id": "S230284547",
+    "row_index": 24,
+    "images": [
+      "product_images\\S230284547_576205486.jpg"
+    ],
+    "num_images": 1,
+    "labels": {
+      "item_name": "MOK ROSE 100G BOX MEIJI GHANA LTD.",
+      "barcode": "6030057221077",
+      "manufacturer": "LGD LIMITED",
+      "brand": "MOK",
+      "weight": "100G",
+      "packaging_type": "BOX",
+      "country": "GHANA",
+      "variant": "",
+      "product_type": "POWDER",
+      "fragrance_flavor": "ROSE",
+      "promotion": "",
+      "addons": "",
+      "tagline": ""
+    },
+    "split": "test"
+  },
+  {
+    "product_id": "S230690915",
+    "row_index": 25,
+    "images": [
+      "product_images\\S230690915_577091456.jpg",
+      "product_images\\S230690915_577091457.jpg",
+      "product_images\\S230690915_577091458.jpg",
+      "product_images\\S230690915_577091459.jpg",
+      "product_images\\S230690915_577091460.jpg",
+      "product_images\\S230690915_577091461.jpg",
+      "product_images\\S230690915_577091462.jpg",
+      "product_images\\S230690915_577091463.jpg",
+      "product_images\\S230690915_577091464.jpg",
+      "product_images\\S230690915_577091465.jpg"
+    ],
+    "num_images": 10,
+    "labels": {
+      "item_name": "GET 3X1 TOP CLEAN 180G SACHET SDTM",
+      "barcode": "786368779467",
+      "manufacturer": "S.D.T.M",
+      "brand": "GET",
+      "weight": "180G",
+      "packaging_type": "SACHET",
+      "country": "",
+      "variant": "",
+      "product_type": "",
+      "fragrance_flavor": "POWDER",
+      "promotion": "",
+      "addons": "",
+      "tagline": ""
+    },
+    "split": "test"
+  },
+  {
+    "product_id": "S230912494",
+    "row_index": 26,
+    "images": [
+      "product_images\\S230912494_577601192.jpg",
+      "product_images\\S230912494_577601193.jpg",
+      "product_images\\S230912494_577601194.jpg",
+      "product_images\\S230912494_577601195.jpg"
+    ],
+    "num_images": 4,
+    "labels": {
+      "item_name": "SO KLIN 800G CONCENTRATED DETERGENT",
+      "barcode": "8998866628877",
+      "manufacturer": "PT SAYAP MAS UTAMA",
+      "brand": "SO KLIN",
+      "weight": "800G",
+      "packaging_type": "PLASTIC BAG",
+      "country": "NIGERIA",
+      "variant": "",
+      "product_type": "",
+      "fragrance_flavor": "",
+      "promotion": "",
+      "addons": "",
+      "tagline": "CONCENTRATED DETERGENT"
+    },
+    "split": "train"
+  },
+  {
+    "product_id": "S230970047",
+    "row_index": 27,
+    "images": [
+      "product_images\\S230970047_577721222.jpg",
+      "product_images\\S230970047_577721223.jpg",
+      "product_images\\S230970047_577721224.jpg",
+      "product_images\\S230970047_577721225.jpg"
+    ],
+    "num_images": 4,
+    "labels": {
+      "item_name": "EAZZY FRESH CITRUS 80G PWDR SACHET AFRICA CONSUMER PRODUCTS GHANA LTD",
+      "barcode": "6034000374742",
+      "manufacturer": "AFRICAN CONSUMER PRODUCTS",
+      "brand": "EASY",
+      "weight": "80G",
+      "packaging_type": "SACHET",
+      "country": "GHANA",
+      "variant": "",
+      "product_type": "POWDER",
+      "fragrance_flavor": "CITRUS",
+      "promotion": "",
+      "addons": "",
+      "tagline": ""
+    },
+    "split": "train"
+  },
+  {
+    "product_id": "S231045463",
+    "row_index": 28,
+    "images": [
+      "product_images\\S231045463_577932905.jpg",
+      "product_images\\S231045463_577932906.jpg",
+      "product_images\\S231045463_577932907.jpg",
+      "product_images\\S231045463_577932908.jpg",
+      "product_images\\S231045463_577932909.jpg",
+      "product_images\\S231045463_577932910.jpg"
+    ],
+    "num_images": 6,
+    "labels": {
+      "item_name": "THIS WAY CHOCOLATE DRINK 1 TO 4 SACHET ATONA FOODS",
+      "barcode": "6224000250131",
+      "manufacturer": "ATONA FOODS",
+      "brand": "THIS WAY",
+      "weight": "40G",
+      "packaging_type": "SACHET",
+      "country": "",
+      "variant": "",
+      "product_type": "",
+      "fragrance_flavor": "CHOCOLATE",
+      "promotion": "",
+      "addons": "",
+      "tagline": ""
+    },
+    "split": "train"
+  },
+  {
+    "product_id": "S231695950",
+    "row_index": 29,
+    "images": [
+      "product_images\\S231695950_579680161.jpg",
+      "product_images\\S231695950_579680164.jpg"
+    ],
+    "num_images": 2,
+    "labels": {
+      "item_name": "CHOCOLIM INSTANT COCOA MIX 400G BUY NOWGHS33 PWDR SACHET NESTLE GHANA LTD",
+      "barcode": "6033000683212",
+      "manufacturer": "NESTLE",
+      "brand": "CHOCOLIM",
+      "weight": "40G",
+      "packaging_type": "SACHET",
+      "country": "GHANA",
+      "variant": "",
+      "product_type": "",
+      "fragrance_flavor": "",
+      "promotion": "BUY NOW GHS33",
+      "addons": "",
+      "tagline": "INSTANT COCOA MIX"
+    },
+    "split": "train"
+  },
+  {
+    "product_id": "S231912790",
+    "row_index": 30,
+    "images": [
+      "product_images\\S231912790_580286901.jpg",
+      "product_images\\S231912790_580286902.jpg",
+      "product_images\\S231912790_580286903.jpg",
+      "product_images\\S231912790_580286904.jpg"
+    ],
+    "num_images": 4,
+    "labels": {
+      "item_name": "MILO SUPPORTS ENERGY RELEASE 400G TIN NESTLE",
+      "barcode": "6033000089199",
+      "manufacturer": "NESTLE",
+      "brand": "MILO",
+      "weight": "400G",
+      "packaging_type": "TIN",
+      "country": "GHANA",
+      "variant": "",
+      "product_type": "",
+      "fragrance_flavor": "",
+      "promotion": "",
+      "addons": "",
+      "tagline": "SUPPORTS ENERGY RELEASE"
+    },
+    "split": "test"
+  },
+  {
+    "product_id": "S231944657",
+    "row_index": 31,
+    "images": [
+      "product_images\\S231944657_580407723.jpg",
+      "product_images\\S231944657_580407724.jpg",
+      "product_images\\S231944657_580407725.jpg",
+      "product_images\\S231944657_580407726.jpg"
+    ],
+    "num_images": 4,
+    "labels": {
+      "item_name": "MIKSI 3 IN 1 CHOCOLATE 35G PWDR PLST SACHET PROMASIDOR GHANA LTD",
+      "barcode": "6008155007534",
+      "manufacturer": "PROMASIDOR",
+      "brand": "MIKSI",
+      "weight": "35G",
+      "packaging_type": "SACHET",
+      "country": "GHANA",
+      "variant": "",
+      "product_type": "3 IN 1",
+      "fragrance_flavor": "CHOCOLATE & MILK",
+      "promotion": "",
+      "addons": "",
+      "tagline": ""
+    },
+    "split": "train"
+  },
+  {
+    "product_id": "S231985315",
+    "row_index": 32,
+    "images": [
+      "product_images\\S231985315_580556435.jpg",
+      "product_images\\S231985315_580556436.jpg",
+      "product_images\\S231985315_580556437.jpg",
+      "product_images\\S231985315_580556438.jpg"
+    ],
+    "num_images": 4,
+    "labels": {
+      "item_name": "BEL-COLA 350ML PLASTIC BOTTLE SOFT DRINK BLOW- CHEM INDUSTRIES LIMITED",
+      "barcode": "6034000351101",
+      "manufacturer": "BLOW CHEM INDUSTRIES LTD",
+      "brand": "BEL",
+      "weight": "350ML",
+      "packaging_type": "PLASTIC BOTTLE",
+      "country": "",
+      "variant": "",
+      "product_type": "",
+      "fragrance_flavor": "COLA",
+      "promotion": "",
+      "addons": "",
+      "tagline": ""
+    },
+    "split": "train"
+  },
+  {
+    "product_id": "S232726085",
+    "row_index": 33,
+    "images": [
+      "product_images\\S232726085_582404200.jpg",
+      "product_images\\S232726085_582404201.jpg",
+      "product_images\\S232726085_582404202.jpg",
+      "product_images\\S232726085_582404203.jpg",
+      "product_images\\S232726085_582404204.jpg",
+      "product_images\\S232726085_582404205.jpg",
+      "product_images\\S232726085_582404206.jpg",
+      "product_images\\S232726085_582404207.jpg"
+    ],
+    "num_images": 8,
+    "labels": {
+      "item_name": "BEL MALT ORIGINAL 330ML BOTTLE PLASTIC BLOW CHEM INDUSTRIES LTD",
+      "barcode": "6033000550521",
+      "manufacturer": "BLOW CHEM INDUSTRIES LTD",
+      "brand": "BEL",
+      "weight": "330ML",
+      "packaging_type": "PLASTIC BOTTLE",
+      "country": "",
+      "variant": "ORIGINAL",
+      "product_type": "",
+      "fragrance_flavor": "MALT",
+      "promotion": "",
+      "addons": "",
+      "tagline": ""
+    },
+    "split": "train"
+  },
+  {
+    "product_id": "S232892532",
+    "row_index": 34,
+    "images": [
+      "product_images\\S232892532_582765826.jpg",
+      "product_images\\S232892532_582765827.jpg",
+      "product_images\\S232892532_582765828.jpg",
+      "product_images\\S232892532_582765829.jpg"
+    ],
+    "num_images": 4,
+    "labels": {
+      "item_name": "GOLDEN VICTORIA SPICY GINGER 25+5 FREE ENVELOPE TEABAGS 60G BOX CARDBOARD JAYAF",
+      "barcode": "",
+      "manufacturer": "MADHU JAYANTI INTERNATIONAL PVT LTD",
+      "brand": "GOLDEN VICTORIA",
+      "weight": "2G",
+      "packaging_type": "BOX",
+      "country": "",
+      "variant": "",
+      "product_type": "",
+      "fragrance_flavor": "SPICY GINGER",
+      "promotion": "",
+      "addons": "5 FREE ENVELOPE",
+      "tagline": ""
+    },
+    "split": "train"
+  },
+  {
+    "product_id": "S233065853",
+    "row_index": 35,
+    "images": [
+      "product_images\\S233065853_583213884.jpg",
+      "product_images\\S233065853_583213885.jpg",
+      "product_images\\S233065853_583213886.jpg",
+      "product_images\\S233065853_583213887.jpg"
+    ],
+    "num_images": 4,
+    "labels": {
+      "item_name": "ZESTA STRAWBERRY 25+7 FREE TEABAG 57.6G BOX CARDBOARD SUNSHINE TEA LTD SRI LANKA",
+      "barcode": "4791076004349",
+      "manufacturer": "WATAWALA TEA CEYLON LTD",
+      "brand": "ZESTA",
+      "weight": "1.8G",
+      "packaging_type": "BOX",
+      "country": "SRI LANKA",
+      "variant": "",
+      "product_type": "",
+      "fragrance_flavor": "STRAWBERRY",
+      "promotion": "",
+      "addons": "7 FREE ENVELOPE",
+      "tagline": ""
+    },
+    "split": "train"
+  },
+  {
+    "product_id": "S233153883",
+    "row_index": 36,
+    "images": [
+      "product_images\\S233153883_583504129.jpg",
+      "product_images\\S233153883_583504130.jpg",
+      "product_images\\S233153883_583504131.jpg"
+    ],
+    "num_images": 3,
+    "labels": {
+      "item_name": "GOLDEN VICTORIA CLOVES 60G 25+5 ENVELOPE TEABAG BOX CARDBOARD JAYAF LTD",
+      "barcode": "",
+      "manufacturer": "MADHU JAYANTI INTERNATIONAL PVT LTD",
+      "brand": "GOLDEN VICTORIA",
+      "weight": "2G",
+      "packaging_type": "BOX",
+      "country": "",
+      "variant": "",
+      "product_type": "",
+      "fragrance_flavor": "CLOVES",
+      "promotion": "",
+      "addons": "5 FREE ENVELOPE",
+      "tagline": ""
+    },
+    "split": "test"
+  },
+  {
+    "product_id": "S233281131",
+    "row_index": 37,
+    "images": [
+      "product_images\\S233281131_583917904.jpg",
+      "product_images\\S233281131_583917905.jpg",
+      "product_images\\S233281131_583917906.jpg",
+      "product_images\\S233281131_583917907.jpg"
+    ],
+    "num_images": 4,
+    "labels": {
+      "item_name": "TAPOK PREMIUM BLACK TEA 2GX100PCS BOX ETKAF INDIA",
+      "barcode": "8901035064345",
+      "manufacturer": "ETKAF",
+      "brand": "TAPOK",
+      "weight": "2G",
+      "packaging_type": "BOX",
+      "country": "INDIA",
+      "variant": "",
+      "product_type": "BLACK TEA",
+      "fragrance_flavor": "",
+      "promotion": "",
+      "addons": "1PCS 2G",
+      "tagline": "PREMIUM"
+    },
+    "split": "train"
+  },
+  {
+    "product_id": "S233323686",
+    "row_index": 38,
+    "images": [
+      "product_images\\S233323686_584058761.jpg",
+      "product_images\\S233323686_584058762.jpg",
+      "product_images\\S233323686_584058763.jpg",
+      "product_images\\S233323686_584058764.jpg"
+    ],
+    "num_images": 4,
+    "labels": {
+      "item_name": "LUX BAR BRIGHT IMPRESS 80G WRAPPED UNILEVER",
+      "barcode": "8886467064432",
+      "manufacturer": "UNILEVER",
+      "brand": "LUX",
+      "weight": "80G",
+      "packaging_type": "WRAPPED",
+      "country": "",
+      "variant": "",
+      "product_type": "BAR",
+      "fragrance_flavor": "JAPANESE CAMELLIA & CITRUS OIL",
+      "promotion": "",
+      "addons": "",
+      "tagline": "BRIGHT IMPRESS BRIGHT & GLOWING SKIN"
+    },
+    "split": "train"
+  },
+  {
+    "product_id": "S233457181",
+    "row_index": 39,
+    "images": [
+      "product_images\\S233457181_584380459.jpg",
+      "product_images\\S233457181_584380460.jpg",
+      "product_images\\S233457181_584380461.jpg",
+      "product_images\\S233457181_584380462.jpg"
+    ],
+    "num_images": 4,
+    "labels": {
+      "item_name": "KIVO CLASSIC TOMATO MIX 70G SACHET GREEN FIELD FZC PRC",
+      "barcode": "784300169864",
+      "manufacturer": "PROCUS LIMITED",
+      "brand": "KIVO",
+      "weight": "70G",
+      "packaging_type": "POUCH",
+      "country": "CHINA",
+      "variant": "",
+      "product_type": "TOMATO MIX",
+      "fragrance_flavor": "",
+      "promotion": "",
+      "addons": "",
+      "tagline": ""
+    },
+    "split": "train"
+  },
+  {
+    "product_id": "S233576818",
+    "row_index": 40,
+    "images": [
+      "product_images\\S233576818_584688925.jpg",
+      "product_images\\S233576818_584688926.jpg",
+      "product_images\\S233576818_584688943.jpg",
+      "product_images\\S233576818_584688944.jpg",
+      "product_images\\S233576818_584688945.jpg",
+      "product_images\\S233576818_584688959.jpg",
+      "product_images\\S233576818_584688960.jpg"
+    ],
+    "num_images": 7,
+    "labels": {
+      "item_name": "BRISK FARM 56G TOMATO MIX NEWLY BRANDED PACK SACHET GB FOODS GHANA LTD",
+      "barcode": "8410300371380",
+      "manufacturer": "GB FOODS",
+      "brand": "BRISK FARM",
+      "weight": "56G",
+      "packaging_type": "SACHET",
+      "country": "",
+      "variant": "",
+      "product_type": "TOMATO MIX",
+      "fragrance_flavor": "",
+      "promotion": "",
+      "addons": "",
+      "tagline": "NEWLY BRANDED"
+    },
+    "split": "train"
+  }
+]

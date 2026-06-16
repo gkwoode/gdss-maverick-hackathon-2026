@@ -44,3 +44,7 @@ Thumbs.db
 
 # Docker
 *.pid
+
+# other files
+product_images/
+output_results.xlsx

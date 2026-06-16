@@ -33,7 +33,7 @@ export default function ImageUpload({ onAnalyze, isLoading }: ImageUploadProps) 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: { "image/*": [".jpg", ".jpeg", ".png", ".webp", ".heic"] },
-    maxFiles: 6,
+    maxFiles: 10,
     maxSize: 20 * 1024 * 1024,
     disabled: isLoading,
   });
@@ -74,18 +74,18 @@ export default function ImageUpload({ onAnalyze, isLoading }: ImageUploadProps) 
               {isDragActive ? "Drop images here" : "Upload product images"}
             </p>
             <p className="text-sm text-gray-500 mt-0.5">
-              Add <strong>3–4 images</strong> of different sides for best results.
+              Add <strong>3–10 images</strong> of different sides for best results.
               {" "}Drag &amp; drop or{" "}
               <span className="text-brand-600 font-medium">browse</span>.
             </p>
-            <p className="text-xs text-gray-400 mt-1">JPG, PNG, WebP · max 20 MB each · up to 6 files</p>
+            <p className="text-xs text-gray-400 mt-1">JPG, PNG, WebP · max 20 MB each · up to 10 files</p>
           </div>
         </div>
       </div>
 
       {/* Image thumbnails */}
       {previews.length > 0 && (
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-5 gap-2">
           {previews.map((p, i) => (
             <div key={i} className="relative group rounded-xl overflow-hidden border border-gray-200 bg-white aspect-square">
               {/* eslint-disable-next-line @next/next/no-img-element */}

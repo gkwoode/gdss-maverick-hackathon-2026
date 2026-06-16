@@ -152,6 +152,7 @@ export default function ProductsPage() {
         totalCount={totalCount}
         page={page}
         pageSize={PAGE_SIZE}
+        isLoading={isLoading}
         onPageChange={setPage}
         onDelete={handleDelete}
         onEdit={setEditRecord}

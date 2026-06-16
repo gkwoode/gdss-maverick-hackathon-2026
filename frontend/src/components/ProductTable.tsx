@@ -2,6 +2,7 @@
 
 import { Trash2, Edit2, AlertTriangle, CheckCircle2, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn, confidenceColor, formatConfidencePct } from "@/lib/utils";
+import { mediaUrl } from "@/lib/api";
 import type { IMDBRecord } from "@/types/imdb";
 
 interface ProductTableProps {
@@ -9,6 +10,7 @@ interface ProductTableProps {
   totalCount: number;
   page: number;
   pageSize: number;
+  isLoading?: boolean;
   onPageChange: (page: number) => void;
   onDelete: (id: number) => void;
   onEdit: (record: IMDBRecord) => void;
@@ -18,6 +20,7 @@ interface ProductTableProps {
 }
 
 const COL_HEADERS = [
+  "Image",
   "Barcode",
   "Brand",
   "Item Name",
@@ -36,6 +39,7 @@ export default function ProductTable({
   totalCount,
   page,
   pageSize,
+  isLoading = false,
   onPageChange,
   onDelete,
   onEdit,
@@ -72,7 +76,19 @@ export default function ProductTable({
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
-            {records.length === 0 && (
+            {isLoading && records.length === 0 && (
+              Array.from({ length: 5 }).map((_, i) => (
+                <tr key={i}>
+                  <td className="px-4 py-3"><div className="h-4 w-4 bg-gray-200 rounded animate-pulse" /></td>
+                  {COL_HEADERS.map((h) => (
+                    <td key={h} className="px-4 py-3">
+                      <div className="h-4 bg-gray-100 rounded animate-pulse" style={{ width: `${60 + Math.random() * 40}%` }} />
+                    </td>
+                  ))}
+                </tr>
+              ))
+            )}
+            {!isLoading && records.length === 0 && (
               <tr>
                 <td
                   colSpan={COL_HEADERS.length + 1}
@@ -100,28 +116,41 @@ export default function ProductTable({
                   />
                 </td>
                 <td className="px-4 py-3 font-mono text-xs text-gray-600 whitespace-nowrap">
-                  {rec.barcode ?? <span className="text-gray-300">â€”</span>}
+                  {/* Thumbnail */}
+                  {rec.image_paths && rec.image_paths.length > 0 ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={mediaUrl(rec.image_paths[0]) ?? ""}
+                      alt="product"
+                      className="h-10 w-10 object-cover rounded-lg border border-gray-200"
+                    />
+                  ) : (
+                    <div className="h-10 w-10 rounded-lg border border-gray-200 bg-gray-50 flex items-center justify-center text-gray-300 text-xs">-</div>
+                  )}
+                </td>
+                <td className="px-4 py-3 font-mono text-xs text-gray-600 whitespace-nowrap">
+                  {rec.barcode ?? <span className="text-gray-300">—</span>}
                 </td>
                 <td className="px-4 py-3 font-medium text-gray-800 whitespace-nowrap">
-                  {rec.brand ?? <span className="text-gray-300">â€”</span>}
+                  {rec.brand ?? <span className="text-gray-300">—</span>}
                 </td>
                 <td className="px-4 py-3 text-gray-700 max-w-[220px] truncate" title={rec.item_name ?? ""}>
-                  {rec.item_name ?? <span className="text-gray-300">â€”</span>}
+                  {rec.item_name ?? <span className="text-gray-300">—</span>}
                 </td>
                 <td className="px-4 py-3 text-gray-600 whitespace-nowrap">
-                  {rec.product_type ?? <span className="text-gray-300">â€”</span>}
+                  {rec.product_type ?? <span className="text-gray-300">—</span>}
                 </td>
                 <td className="px-4 py-3 text-gray-600 whitespace-nowrap">
-                  {rec.weight ?? <span className="text-gray-300">â€”</span>}
+                  {rec.weight ?? <span className="text-gray-300">—</span>}
                 </td>
                 <td className="px-4 py-3 text-gray-600 whitespace-nowrap">
-                  {rec.packaging_type ?? <span className="text-gray-300">â€”</span>}
+                  {rec.packaging_type ?? <span className="text-gray-300">—</span>}
                 </td>
                 <td className="px-4 py-3 text-gray-600 whitespace-nowrap">
-                  {rec.country ?? <span className="text-gray-300">â€”</span>}
+                  {rec.country ?? <span className="text-gray-300">—</span>}
                 </td>
                 <td className="px-4 py-3 text-gray-600 whitespace-nowrap text-xs">
-                  {rec.variant || <span className="text-gray-300">â€”</span>}
+                  {rec.variant || <span className="text-gray-300">—</span>}
                 </td>
                 <td className="px-4 py-3 whitespace-nowrap">
                   <span
@@ -176,7 +205,7 @@ export default function ProductTable({
           <p className="text-sm text-gray-500">
             Showing{" "}
             <span className="font-medium">
-              {(page - 1) * pageSize + 1}â€“{Math.min(page * pageSize, totalCount)}
+              {(page - 1) * pageSize + 1}–{Math.min(page * pageSize, totalCount)}
             </span>{" "}
             of <span className="font-medium">{totalCount}</span>
           </p>

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import toast from "react-hot-toast";
-import { CheckCircle2, Sparkles, Info } from "lucide-react";
+import { CheckCircle2, Sparkles, Info, AlertCircle } from "lucide-react";
 import ImageUpload from "@/components/ImageUpload";
 import IMDBForm from "@/components/IMDBForm";
 import DuplicateAlert from "@/components/DuplicateAlert";
@@ -12,6 +12,7 @@ import type {
   DuplicateCandidate,
   IMDBFormData,
 } from "@/types/imdb";
+import axios from "axios";
 
 const EMPTY_FORM: Partial<IMDBFormData> = {
   item_name: "",
@@ -34,6 +35,8 @@ const EMPTY_FORM: Partial<IMDBFormData> = {
 export default function UploadPage() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [hasAnalyzed, setHasAnalyzed] = useState(false);
+  const [analyzeError, setAnalyzeError] = useState<string | null>(null);
   const [formData, setFormData] = useState<Partial<IMDBFormData>>(EMPTY_FORM);
   const [confidence, setConfidence] = useState<Partial<ConfidenceScores>>({});
   const [duplicates, setDuplicates] = useState<DuplicateCandidate[]>([]);
@@ -44,19 +47,27 @@ export default function UploadPage() {
   const handleAnalyze = async (files: File[]) => {
     setIsAnalyzing(true);
     setSaved(false);
+    setAnalyzeError(null);
     try {
       const result = await analyzeImages(files);
       const { confidence: conf, method: m, potential_duplicates: dups, extracted, images_processed } = result;
-      setFormData(extracted);
+      setFormData({ ...EMPTY_FORM, ...extracted });
       setConfidence(conf);
       setDuplicates(dups);
       setMethod(m);
       setImagesProcessed(images_processed);
+      setHasAnalyzed(true);
       toast.success(
         `Extracted from ${images_processed} image${images_processed > 1 ? "s" : ""}! Review and save.`
       );
-    } catch {
-      toast.error("Image analysis failed. Check your OpenAI API key and try again.");
+    } catch (err: unknown) {
+      let msg = "Image analysis failed. Make sure the backend is running.";
+      if (axios.isAxiosError(err)) {
+        const detail = err.response?.data?.error || err.response?.data?.detail || err.message;
+        msg = `Analysis failed: ${detail}`;
+      }
+      setAnalyzeError(msg);
+      toast.error(msg, { duration: 6000 });
     } finally {
       setIsAnalyzing(false);
     }
@@ -72,19 +83,25 @@ export default function UploadPage() {
       await createProduct({ ...formData, confidence_scores: confidence });
       toast.success("Product saved to IMDB!");
       setSaved(true);
+      setHasAnalyzed(false);
       setFormData(EMPTY_FORM);
       setConfidence({});
       setDuplicates([]);
       setMethod(null);
       setImagesProcessed(0);
-    } catch {
-      toast.error("Failed to save. Please review required fields and try again.");
+    } catch (err: unknown) {
+      let msg = "Failed to save. Please review required fields and try again.";
+      if (axios.isAxiosError(err)) {
+        const detail = err.response?.data?.error || err.response?.data?.detail || err.message;
+        msg = `Save failed: ${detail}`;
+      }
+      toast.error(msg, { duration: 6000 });
     } finally {
       setIsSaving(false);
     }
   };
 
-  const hasExtracted = Boolean(formData.item_name || formData.brand || formData.barcode);
+  const hasExtracted = hasAnalyzed;
 
   return (
     <div className="space-y-8">
@@ -96,7 +113,7 @@ export default function UploadPage() {
         </div>
         <h1 className="text-3xl font-bold text-gray-900">Upload → Extract → Save</h1>
         <p className="text-gray-500 max-w-xl mx-auto text-sm">
-          Upload <strong>3–4 images</strong> of different product sides. The AI aggregates
+          Upload <strong>3–10 images</strong> of different product sides. The AI aggregates
           evidence across all images to fill all 13 IMDB columns.
         </p>
       </div>
@@ -146,6 +163,13 @@ export default function UploadPage() {
           </h2>
 
           {duplicates.length > 0 && <DuplicateAlert duplicates={duplicates} />}
+
+          {analyzeError && !hasExtracted && (
+            <div className="flex items-start gap-3 bg-red-50 border border-red-200 rounded-xl px-4 py-3">
+              <AlertCircle className="h-4 w-4 text-red-600 mt-0.5 shrink-0" />
+              <p className="text-xs text-red-700">{analyzeError}</p>
+            </div>
+          )}
 
           {hasExtracted ? (
             <IMDBForm

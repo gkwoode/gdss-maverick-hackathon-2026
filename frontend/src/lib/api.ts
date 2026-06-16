@@ -54,9 +54,7 @@ export async function deleteProduct(id: number): Promise<void> {
 export async function analyzeImage(file: File): Promise<AnalyzeResult> {
   const form = new FormData();
   form.append("image", file);
-  const { data } = await api.post<AnalyzeResult>("/products/analyze/", form, {
-    headers: { "Content-Type": "multipart/form-data" },
-  });
+  const { data } = await api.post<AnalyzeResult>("/products/analyze/", form);
   return data;
 }
 
@@ -67,9 +65,7 @@ export async function analyzeImage(file: File): Promise<AnalyzeResult> {
 export async function analyzeImages(files: File[]): Promise<AnalyzeResult> {
   const form = new FormData();
   files.forEach((f) => form.append("images", f));
-  const { data } = await api.post<AnalyzeResult>("/products/analyze_multi/", form, {
-    headers: { "Content-Type": "multipart/form-data" },
-  });
+  const { data } = await api.post<AnalyzeResult>("/products/analyze_multi/", form);
   return data;
 }
 
@@ -96,5 +92,13 @@ export function buildExportUrl(format: ExportFormat, ids?: number[]): string {
   const params = new URLSearchParams({ format });
   if (ids && ids.length > 0) ids.forEach((id) => params.append("ids", String(id)));
   return `${base}?${params.toString()}`;
+}
+
+/** Convert a relative media path (e.g. "product_images/abc.jpg") to a full URL. */
+export function mediaUrl(path: string | null | undefined): string | null {
+  if (!path) return null;
+  if (path.startsWith("http")) return path;
+  const base = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api").replace(/\/api$/, "");
+  return `${base}/media/${path}`;
 }
 

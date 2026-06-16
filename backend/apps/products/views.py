@@ -1,5 +1,8 @@
 import logging
+import uuid
 
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
 from django.http import HttpResponse
 from rest_framework import status
 from rest_framework.decorators import action
@@ -59,6 +62,17 @@ class IMDBRecordViewSet(ModelViewSet):
         return qs.distinct()
 
     # ------------------------------------------------------------------
+    # Internal helper: persist an uploaded image and return its URL path
+    # ------------------------------------------------------------------
+    def _save_image(self, img_file) -> str:
+        """Save an uploaded image file to MEDIA_ROOT and return its relative path."""
+        ext = img_file.name.rsplit(".", 1)[-1].lower() if "." in img_file.name else "jpg"
+        filename = f"product_images/{uuid.uuid4().hex}.{ext}"
+        img_file.seek(0)
+        saved_path = default_storage.save(filename, ContentFile(img_file.read()))
+        return saved_path
+
+    # ------------------------------------------------------------------
     # Single-image analyze
     # ------------------------------------------------------------------
     @action(
@@ -73,7 +87,10 @@ class IMDBRecordViewSet(ModelViewSet):
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        image_bytes = serializer.validated_data["image"].read()
+        img_file = serializer.validated_data["image"]
+        image_bytes = img_file.read()
+        img_file.seek(0)
+        saved_path = self._save_image(img_file)
 
         try:
             raw = analyze_image(image_bytes)
@@ -88,6 +105,7 @@ class IMDBRecordViewSet(ModelViewSet):
         confidence = cleaned.pop("confidence", {})
         method = cleaned.pop("method", "unknown")
         duplicates = find_duplicates(cleaned)
+        cleaned["image_paths"] = [saved_path]
 
         return Response(
             {
@@ -122,9 +140,16 @@ class IMDBRecordViewSet(ModelViewSet):
             )
 
         per_image_results = []
+        saved_paths = []
         errors = []
         for img_file in images:
             img_bytes = img_file.read()
+            # Persist the image file
+            try:
+                saved_paths.append(self._save_image(img_file))
+            except Exception as exc:
+                logger.warning("Failed to save image '%s': %s", img_file.name, exc)
+
             try:
                 raw = analyze_image(img_bytes)
                 cleaned = validate_and_normalise(raw)
@@ -143,6 +168,7 @@ class IMDBRecordViewSet(ModelViewSet):
         confidence = aggregated.pop("confidence", {})
         method = aggregated.pop("method", "unknown")
         duplicates = find_duplicates(aggregated)
+        aggregated["image_paths"] = saved_paths
 
         return Response(
             {
