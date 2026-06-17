@@ -95,10 +95,15 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # CORS
 CORS_ALLOWED_ORIGINS = os.getenv(
-    "CORS_ALLOWED_ORIGINS", "http://localhost:3000"
+    "CORS_ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:3002"
 ).split(",")
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r"^https://.*\.vercel\.app$",
+    r"^https://.*\.onrender\.com$",
+]
 CORS_ALLOW_ALL_ORIGINS = DEBUG
 CORS_EXPOSE_HEADERS = ["Content-Disposition"]
+CORS_ALLOW_CREDENTIALS = True
 
 # DRF
 REST_FRAMEWORK = {
