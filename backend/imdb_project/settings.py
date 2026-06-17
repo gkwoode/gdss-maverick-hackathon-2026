@@ -10,7 +10,21 @@ SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-dev-key-change-in-producti
 
 DEBUG = os.getenv("DEBUG", "True") == "True"
 
-ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
+_allowed_hosts = [h.strip() for h in os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",") if h.strip()]
+# Vercel sets VERCEL_URL to the current deployment's hostname (no scheme).
+_vercel_url = os.getenv("VERCEL_URL", "").strip()
+if _vercel_url and _vercel_url not in _allowed_hosts:
+    _allowed_hosts.append(_vercel_url)
+ALLOWED_HOSTS = _allowed_hosts
+
+# Allow the Vercel deployment URL (and any other HTTPS origin) as a trusted CSRF origin.
+# VERCEL_URL contains only the hostname (no scheme); Vercel deployments are always HTTPS.
+_csrf_origins = [o.strip() for o in os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",") if o.strip()]
+if _vercel_url:
+    _vercel_https = f"https://{_vercel_url}"
+    if _vercel_https not in _csrf_origins:
+        _csrf_origins.append(_vercel_https)
+CSRF_TRUSTED_ORIGINS = _csrf_origins
 
 INSTALLED_APPS = [
     "django.contrib.admin",
