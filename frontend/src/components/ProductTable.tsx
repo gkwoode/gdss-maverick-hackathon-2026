@@ -34,7 +34,7 @@ const COL_HEADERS = [
   "Promotion",
   "Add-ons",
   "Tagline",
-  "Confidence",
+  // "Confidence",
   // "Status",
   "Actions",
 ];
@@ -172,7 +172,7 @@ export default function ProductTable({
                 <td className="px-4 py-3 text-gray-600 max-w-[180px] truncate text-xs" title={rec.tagline ?? ""}>
                   {rec.tagline || <span className="text-gray-300">—</span>}
                 </td>
-                <td className="px-4 py-3 whitespace-nowrap">
+                {/* <td className="px-4 py-3 whitespace-nowrap">
                   <span
                     className={cn(
                       "text-xs font-semibold px-2 py-0.5 rounded-full",
@@ -181,7 +181,7 @@ export default function ProductTable({
                   >
                     {formatConfidencePct(rec.overall_confidence)}
                   </span>
-                </td>
+                </td> */}
                 {/* <td className="px-4 py-3">
                   {rec.needs_review ? (
                     <span className="flex items-center gap-1 text-yellow-600 text-xs font-medium">
