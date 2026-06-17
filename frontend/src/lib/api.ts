@@ -89,7 +89,7 @@ export async function checkDuplicates(
 
 export function buildExportUrl(format: ExportFormat, ids?: number[]): string {
   const base = `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api"}/products/export/`;
-  const params = new URLSearchParams({ format });
+  const params = new URLSearchParams({ file_format: format });
   if (ids && ids.length > 0) ids.forEach((id) => params.append("ids", String(id)));
   return `${base}?${params.toString()}`;
 }

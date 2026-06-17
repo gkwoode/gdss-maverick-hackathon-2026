@@ -53,7 +53,7 @@ class AnalyzeMultiImageSerializer(serializers.Serializer):
 
 class ExportQuerySerializer(serializers.Serializer):
     FORMAT_CHOICES = [("csv", "CSV"), ("excel", "Excel")]
-    format = serializers.ChoiceField(choices=FORMAT_CHOICES, default="csv")
+    file_format = serializers.ChoiceField(choices=FORMAT_CHOICES, default="csv")
     ids = serializers.ListField(
         child=serializers.IntegerField(),
         required=False,

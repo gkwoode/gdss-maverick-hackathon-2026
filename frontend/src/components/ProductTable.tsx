@@ -21,16 +21,21 @@ interface ProductTableProps {
 
 const COL_HEADERS = [
   "Image",
-  "Barcode",
-  "Brand",
   "Item Name",
-  "Type",
+  "Barcode",
+  "Manufacturer",
+  "Brand",
   "Weight",
   "Packaging",
   "Country",
   "Variant",
+  "Type",
+  "Flavor / Fragrance",
+  "Promotion",
+  "Add-ons",
+  "Tagline",
   "Confidence",
-  "Status",
+  // "Status",
   "Actions",
 ];
 
@@ -128,17 +133,17 @@ export default function ProductTable({
                     <div className="h-10 w-10 rounded-lg border border-gray-200 bg-gray-50 flex items-center justify-center text-gray-300 text-xs">-</div>
                   )}
                 </td>
-                <td className="px-4 py-3 font-mono text-xs text-gray-600 whitespace-nowrap">
-                  {rec.barcode ?? <span className="text-gray-300">—</span>}
-                </td>
-                <td className="px-4 py-3 font-medium text-gray-800 whitespace-nowrap">
-                  {rec.brand ?? <span className="text-gray-300">—</span>}
-                </td>
                 <td className="px-4 py-3 text-gray-700 max-w-[220px] truncate" title={rec.item_name ?? ""}>
                   {rec.item_name ?? <span className="text-gray-300">—</span>}
                 </td>
+                <td className="px-4 py-3 font-mono text-xs text-gray-600 whitespace-nowrap">
+                  {rec.barcode ?? <span className="text-gray-300">—</span>}
+                </td>
                 <td className="px-4 py-3 text-gray-600 whitespace-nowrap">
-                  {rec.product_type ?? <span className="text-gray-300">—</span>}
+                  {rec.manufacturer ?? <span className="text-gray-300">—</span>}
+                </td>
+                <td className="px-4 py-3 font-medium text-gray-800 whitespace-nowrap">
+                  {rec.brand ?? <span className="text-gray-300">—</span>}
                 </td>
                 <td className="px-4 py-3 text-gray-600 whitespace-nowrap">
                   {rec.weight ?? <span className="text-gray-300">—</span>}
@@ -152,6 +157,21 @@ export default function ProductTable({
                 <td className="px-4 py-3 text-gray-600 whitespace-nowrap text-xs">
                   {rec.variant || <span className="text-gray-300">—</span>}
                 </td>
+                <td className="px-4 py-3 text-gray-600 whitespace-nowrap">
+                  {rec.product_type ?? <span className="text-gray-300">—</span>}
+                </td>
+                <td className="px-4 py-3 text-gray-600 whitespace-nowrap text-xs">
+                  {rec.fragrance_flavor || <span className="text-gray-300">—</span>}
+                </td>
+                <td className="px-4 py-3 text-gray-600 whitespace-nowrap text-xs">
+                  {rec.promotion || <span className="text-gray-300">—</span>}
+                </td>
+                <td className="px-4 py-3 text-gray-600 whitespace-nowrap text-xs">
+                  {rec.addons || <span className="text-gray-300">—</span>}
+                </td>
+                <td className="px-4 py-3 text-gray-600 max-w-[180px] truncate text-xs" title={rec.tagline ?? ""}>
+                  {rec.tagline || <span className="text-gray-300">—</span>}
+                </td>
                 <td className="px-4 py-3 whitespace-nowrap">
                   <span
                     className={cn(
@@ -162,7 +182,7 @@ export default function ProductTable({
                     {formatConfidencePct(rec.overall_confidence)}
                   </span>
                 </td>
-                <td className="px-4 py-3">
+                {/* <td className="px-4 py-3">
                   {rec.needs_review ? (
                     <span className="flex items-center gap-1 text-yellow-600 text-xs font-medium">
                       <AlertTriangle className="h-3.5 w-3.5" />
@@ -174,7 +194,7 @@ export default function ProductTable({
                       OK
                     </span>
                   )}
-                </td>
+                </td> */}
                 <td className="px-4 py-3 whitespace-nowrap">
                   <div className="flex items-center gap-2">
                     <button

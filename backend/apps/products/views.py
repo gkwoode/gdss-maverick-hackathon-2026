@@ -7,8 +7,7 @@ from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from django.http import HttpResponse
 from rest_framework import status
-from rest_framework.decorators import api_view
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view
 from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
@@ -21,9 +20,7 @@ from .serializers import (
     IMDBRecordSerializer,
 )
 from .services.aggregator import aggregate_extractions
-from .services.batch_processor import batch_process_directory
 from .services.duplicate_checker import find_duplicates
-from .services.evaluation import get_evaluation_report
 from .services.exporter import export_csv, export_excel
 from .services.image_analyzer import analyze_image
 from .services.validator import validate_and_normalise
@@ -39,7 +36,7 @@ def export_records(request):
     if not serializer.is_valid():
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    fmt = serializer.validated_data.get("format", "csv")
+    fmt = serializer.validated_data.get("file_format", "csv")
     ids = serializer.validated_data.get("ids", [])
 
     qs = IMDBRecord.objects.all()
@@ -229,87 +226,6 @@ class IMDBRecordViewSet(ModelViewSet):
         return Response({"potential_duplicates": duplicates})
 
     # ------------------------------------------------------------------
-    # Batch process directory endpoint
-    # ------------------------------------------------------------------
-    @action(detail=False, methods=["post"], url_path="batch_process")
-    def batch_process(self, request):
-        """
-        Batch process all product images from a directory.
-        
-        POST data:
-          - images_dir: path to directory (or uses default MEDIA_ROOT/product_images)
-          - max_products: optional limit on number of products
-          - update_existing: whether to update existing records (default: true)
-        """
-        images_dir = request.data.get("images_dir", "")
-        max_products = request.data.get("max_products")
-        update_existing = request.data.get("update_existing", True)
-        
-        try:
-            max_products = int(max_products) if max_products else None
-        except (ValueError, TypeError):
-            max_products = None
-        
-        if not images_dir:
-            # Use default media directory
-            from django.conf import settings
-            images_dir = Path(settings.MEDIA_ROOT) / "product_images"
-        else:
-            images_dir = Path(images_dir)
-        
-        try:
-            result = batch_process_directory(
-                images_dir,
-                update_existing=update_existing,
-                max_products=max_products,
-            )
-            return Response(result, status=status.HTTP_200_OK)
-        except Exception as exc:
-            logger.exception("Batch processing failed")
-            return Response(
-                {"error": f"Batch processing failed: {exc}"},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )
-
-    # ------------------------------------------------------------------
-    # Evaluation endpoint
-    # ------------------------------------------------------------------
-    @action(detail=False, methods=["get"], url_path="evaluate")
-    def evaluate(self, request):
-        """
-        Evaluate predictions against ground truth records.
-        
-        Query params:
-          - include_low_confidence: include records below 0.7 confidence (default: false)
-        """
-        include_low_confidence = request.query_params.get("include_low_confidence", "false").lower() == "true"
-        
-        try:
-            # Ground truth: records with confidence = 1.0
-            ground_truth_qs = IMDBRecord.objects.filter(overall_confidence=1.0)
-            
-            # Predictions: records with confidence < 1.0
-            if include_low_confidence:
-                prediction_qs = IMDBRecord.objects.filter(overall_confidence__lt=1.0)
-            else:
-                prediction_qs = IMDBRecord.objects.filter(
-                    overall_confidence__gte=0.7,
-                    overall_confidence__lt=1.0,
-                )
-            
-            result = get_evaluation_report(
-                ground_truth_queryset=ground_truth_qs,
-                prediction_queryset=prediction_qs,
-            )
-            return Response(result, status=status.HTTP_200_OK)
-        except Exception as exc:
-            logger.exception("Evaluation failed")
-            return Response(
-                {"error": f"Evaluation failed: {exc}"},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )
-
-    # ------------------------------------------------------------------
     # Export — produces predictions.csv / predictions.xlsx
     # ------------------------------------------------------------------
     @action(detail=False, methods=["get", "post"], url_path="export")
@@ -320,7 +236,7 @@ class IMDBRecordViewSet(ModelViewSet):
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        fmt = serializer.validated_data.get("format", "csv")
+        fmt = serializer.validated_data.get("file_format", "csv")
         ids = serializer.validated_data.get("ids", [])
 
         qs = IMDBRecord.objects.all()
