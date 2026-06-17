@@ -29,50 +29,37 @@ _SYSTEM_PROMPT = (
     "You are an expert product-label analyst for a retail company. "
     "Your job is to read product images and extract structured data for "
     "an Item Master Database (IMDB). Be precise; only report what is "
-    "clearly visible on the label. Never hallucinate brand names, weights, "
-    "barcodes, or countries. If a field is not visible, return null."
+    "clearly visible on the label or in the image tag. "
+    "Never hallucinate brand names, weights, barcodes, or countries. "
+    "If a field is not visible, return null."
 )
 
-_EXTRACTION_PROMPT = """Analyze the product image and return a single JSON object with EXACTLY these keys:
+_EXTRACTION_PROMPT = """Analyze the product image carefully and return a single JSON object with EXACTLY these keys:
 
 {
-  "item_name": "<full descriptive product name as it would appear in a retail catalog, e.g. 'Blue Band Margarine Original 500G Tub'>",
-  "barcode": "<numeric barcode as printed — digits only, no spaces or dashes — or null>",
-  "manufacturer": "<full legal name of the manufacturing company, or null>",
-  "brand": "<brand name as printed on the label, or null>",
-  "weight": "<net weight or volume with unit in UPPERCASE — examples: '250G', '430G', '1.5 KG', '500 ML', '1L' — or null>",
-  "packaging_type": "<packaging form in UPPERCASE: TUB | GLASS JAR | SACHET | BOTTLE | CAN | BOX | BAG | POUCH | TETRA PAK | TUBE | JAR | or null>",
-  "country": "<country of manufacture or packing as printed on label, or null>",
-  "variant": "<product variant if applicable, e.g. 'ORIGINAL', 'LOW FAT', 'LIGHT' — empty string '' if not applicable>",
-  "product_type": "<short product type / category, e.g. 'MARGARINE', 'MAYONNAISE', 'BUTTER', 'YOGHURT', 'JUICE' — or null>",
-  "fragrance_flavor": "<flavor or fragrance if applicable, e.g. 'STRAWBERRY', 'VANILLA', 'RICH' — empty string '' if not applicable>",
-  "promotion": "<on-pack promotion text verbatim, e.g. '50% OFF', 'BUY 2 GET 1 FREE' — empty string '' if none visible>",
-  "addons": "<additional features or pack contents, e.g. 'SPOON INCLUDED', 'FREE RECIPE BOOK' — empty string '' if none>",
-  "tagline": "<short promotional or descriptive tagline printed on the pack, or empty string '' if none>",
-  "confidence": {
-    "item_name": 0.0,
-    "barcode": 0.0,
-    "manufacturer": 0.0,
-    "brand": 0.0,
-    "weight": 0.0,
-    "packaging_type": 0.0,
-    "country": 0.0,
-    "variant": 0.0,
-    "product_type": 0.0,
-    "fragrance_flavor": 0.0,
-    "promotion": 0.0,
-    "addons": 0.0,
-    "tagline": 0.0
-  }
+  "item_name": "<CRITICAL: Extract from the image tag/label at the BOTTOM of the image FIRST. This contains the canonical product name. Use it verbatim. If no visible tag, try to infer from package labels. Examples: 'Blue Band Margarine Original 500G Tub', 'Rama Butter 250G Glass Jar'. If truly unable to determine, null>",
+  "barcode": "<Numeric barcode digits only, no spaces or dashes. Use pyzbar if available. If barcode visible but unclear, null>",
+  "manufacturer": "<Full legal name of the manufacturing company as printed. Search for 'Manufactured by', 'Made by', or company name on label. If not found, null>",
+  "brand": "<Brand name exactly as printed on label. The primary brand identifier. If not clearly visible, null>",
+  "weight": "<Net weight or volume with unit in UPPERCASE format. Examples: '250G', '1.5 KG', '500 ML', '2L'. Format: AmountUNIT (no space for single-letter units like G, L; space for multi-letter units like KG, ML). If not visible, null>",
+  "packaging_type": "<Packaging form in UPPERCASE. Choose from: TUB, GLASS JAR, SACHET, BOTTLE, CAN, BOX, BAG, POUCH, TETRA PAK, TUBE, JAR. If ambiguous, null>",
+  "country": "<Country of manufacture or packing as explicitly stated on label (e.g., 'Made in India', 'Packed in Ghana'). Return the country name. If not visible, null>",
+  "variant": "<Product variant if clearly labeled, e.g. 'ORIGINAL', 'LOW FAT', 'LIGHT', 'FULL CREAM', 'SMOOTH', 'CRUNCHY'. Empty string '' if no variant or not applicable>",
+  "product_type": "<Product category in UPPERCASE. Examples: MARGARINE, MAYONNAISE, BUTTER, YOGHURT, JUICE, OIL, MILK, JAM, SAUCE. Infer from product description if needed. If unclear, null>",
+  "fragrance_flavor": "<ONLY actual taste/scent flavors, e.g. 'STRAWBERRY', 'VANILLA', 'CHOCOLATE', 'HONEY', 'LEMON'. Do NOT include variants like 'ORIGINAL', 'LIGHT', or packaging details. Empty string '' if no specific flavor or not applicable>",
+  "promotion": "<On-pack promotion text verbatim, e.g. '50% OFF', 'BUY 2 GET 1 FREE', 'FREE SAMPLE INCLUDED'. Empty string '' if none visible>",
+  "addons": "<Additional features or pack contents, e.g. 'SPOON INCLUDED', 'FREE RECIPE BOOK', 'BONUS PACK'. Empty string '' if none>",
+  "tagline": "<Short promotional or descriptive tagline printed on the pack, e.g. 'The Original Taste', 'Naturally Fresh'. Empty string '' if none>"
 }
 
-Rules:
-- Confidence values must be floats between 0 and 1.
-- Use null (JSON null, not empty string) for fields you truly cannot determine.
-- Use empty string "" for VARIANT, FRAGRANCE_FLAVOR, PROMOTION, ADDONS, TAGLINE when not applicable.
-- Weight must be UPPERCASE with no space for single-letter units (250G, 500ML) and a space before multi-letter units (1.5 KG, 500 ML).
-- Do not guess; if a value is ambiguous, set confidence ≤ 0.4.
-- The image tag at the bottom of the image often contains the product name — use it.
+Critical Rules:
+1. ALWAYS read the image tag/label at the BOTTOM of the image FIRST for item_name — it is the authoritative source.
+2. Use null (JSON null) ONLY for fields where the value cannot be determined from the visible image content.
+3. Use empty string "" ONLY for: variant, fragrance_flavor, promotion, addons, tagline when the field is not applicable.
+4. Weight format: Amount + Unit (uppercase). Single-letter units (G, L): no space (250G). Multi-letter units (KG, ML, OZ, etc.): space before (1.5 KG).
+5. fragrance_flavor must be actual flavor/scent ONLY — never include variant information here.
+6. Extract exactly what you see. Do not hallucinate, guess, or infer beyond what is visible.
+7. If a field is ambiguous or unclear, use null rather than guessing.
 """
 
 # ---------------------------------------------------------------------------
@@ -146,7 +133,17 @@ def _ocr_fallback(image_bytes: bytes) -> dict[str, Any]:
         img = Image.open(BytesIO(image_bytes)).convert("RGB")
         text = pytesseract.image_to_string(img)
     except Exception as exc:
-        logger.warning("pytesseract OCR failed: %s", exc)
+        if "tesseract is not installed" in str(exc).lower() or "not in your path" in str(exc).lower():
+            logger.warning(
+                "Tesseract OCR is not available (%s). "
+                "Install it to enable the OCR fallback: "
+                "Windows -> https://github.com/UB-Mannheim/tesseract/wiki ; "
+                "Linux -> sudo apt install tesseract-ocr ; "
+                "macOS -> brew install tesseract",
+                exc,
+            )
+        else:
+            logger.warning("pytesseract OCR failed: %s", exc)
         return _empty_result()
 
     result = _empty_result()
@@ -213,11 +210,16 @@ def _gpt4o_extract(image_bytes: bytes) -> dict[str, Any]:
             },
         ],
         response_format={"type": "json_object"},
-        max_tokens=1024,
-        temperature=0.1,
+        max_tokens=800,
+        temperature=0.0,
     )
 
     raw = json.loads(response.choices[0].message.content)
+    # Compute confidence from field presence — 0.92 if value present, 0.0 if null/empty
+    raw["confidence"] = {
+        f: 0.92 if raw.get(f) not in (None, "") else 0.0
+        for f in IMDB_FIELDS
+    }
     raw["method"] = "gpt4o"
     return raw
 

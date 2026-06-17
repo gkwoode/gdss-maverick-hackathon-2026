@@ -56,8 +56,9 @@ def _records_to_dataframe(records: Iterable[IMDBRecord]) -> pd.DataFrame:
 def export_csv(records: Iterable[IMDBRecord]) -> bytes:
     df = _records_to_dataframe(records)
     buf = io.StringIO()
-    df.to_csv(buf, index=False, encoding="utf-8-sig")
-    return buf.getvalue().encode("utf-8-sig")
+    # Submission spec expects UTF-8 CSV; keep plain UTF-8 without BOM.
+    df.to_csv(buf, index=False)
+    return buf.getvalue().encode("utf-8")
 
 
 def export_excel(records: Iterable[IMDBRecord]) -> bytes:

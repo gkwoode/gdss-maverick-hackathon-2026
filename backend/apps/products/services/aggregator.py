@@ -17,22 +17,16 @@ from .image_analyzer import EMPTY_STRING_FIELDS, IMDB_FIELDS
 
 # Fields where we collect ALL unique non-empty values across images
 _CONCAT_FIELDS = {"promotion", "addons", "tagline"}
+# Fields where the longest non-empty value wins (image tag is same across all images)
+_LONGEST_FIELDS = {"item_name"}
 
 
 def aggregate_extractions(results: list[dict[str, Any]]) -> dict[str, Any]:
     """
     Merge a list of per-image extraction dicts into one consolidated record.
-
-    Args:
-        results: List of dicts returned by ``analyze_image`` (after validation).
-                 Each dict must contain all IMDB_FIELDS and a ``confidence`` sub-dict.
-
-    Returns:
-        A merged dict with the same structure (plus ``method`` and ``confidence``).
     """
     if not results:
         return {}
-
     if len(results) == 1:
         return results[0]
 
@@ -41,7 +35,6 @@ def aggregate_extractions(results: list[dict[str, Any]]) -> dict[str, Any]:
 
     for field in IMDB_FIELDS:
         if field in _CONCAT_FIELDS:
-            # Collect all unique non-empty values
             seen: list[str] = []
             best_conf = 0.0
             for r in results:
@@ -53,14 +46,24 @@ def aggregate_extractions(results: list[dict[str, Any]]) -> dict[str, Any]:
                     best_conf = conf
             merged[field] = ", ".join(seen) if seen else ""
             merged_conf[field] = best_conf
-        else:
-            # Take the value with the highest confidence
-            best_val: Any = "" if field in EMPTY_STRING_FIELDS else None
+        elif field in _LONGEST_FIELDS:
+            # Prefer longest non-empty value (image tag is consistent across images)
+            best_val: Any = None
             best_conf = 0.0
             for r in results:
                 val = r.get(field)
                 conf = r.get("confidence", {}).get(field, 0.0)
-                # Prefer non-null/non-empty values
+                if val and (best_val is None or len(str(val)) > len(str(best_val))):
+                    best_val = val
+                    best_conf = conf
+            merged[field] = best_val
+            merged_conf[field] = best_conf
+        else:
+            best_val = "" if field in EMPTY_STRING_FIELDS else None
+            best_conf = 0.0
+            for r in results:
+                val = r.get(field)
+                conf = r.get("confidence", {}).get(field, 0.0)
                 has_value = val is not None and val != ""
                 if has_value and conf > best_conf:
                     best_val = val
@@ -68,9 +71,7 @@ def aggregate_extractions(results: list[dict[str, Any]]) -> dict[str, Any]:
             merged[field] = best_val
             merged_conf[field] = best_conf
 
-    # Determine the method used (prefer gpt4o)
     methods = [r.get("method", "unknown") for r in results]
     merged["method"] = "gpt4o" if "gpt4o" in methods else methods[0]
     merged["confidence"] = merged_conf
-
     return merged

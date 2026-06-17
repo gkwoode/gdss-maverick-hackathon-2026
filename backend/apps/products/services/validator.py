@@ -57,12 +57,12 @@ def validate_weight(value: Optional[str]) -> tuple[Optional[str], bool]:
     cleaned = value.strip().replace(",", ".")
     match = _WEIGHT_PATTERN.match(cleaned)
     if not match:
-        # Try to uppercase whatever we got
         return cleaned.upper(), False
     amount = match.group(1)
-    unit_key = match.group(2).lower().replace(" ", "")
+    unit_key = re.sub(r"\s+", "", match.group(2).lower())  # normalise "fl oz" -> "floz"
     unit_display, space = _UNIT_MAP.get(unit_key, (match.group(2).upper(), True))
-    sep = " " if space else ""
+    # Single-letter units (G, L): no space. Multi-letter (KG, ML, etc.): space.
+    sep = " " if space and len(unit_display.replace(" ", "")) > 1 else ""
     return f"{amount}{sep}{unit_display}", True
 
 

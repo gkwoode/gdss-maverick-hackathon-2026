@@ -30,8 +30,8 @@ import pandas as pd
 
 # ── Paths ─────────────────────────────────────────────────────────────────────
 ROOT = Path(__file__).resolve().parent.parent
-IMAGES_DIR = ROOT / "product_images"
-EXCEL_PATH = ROOT / "output_results.xlsx"
+DEFAULT_IMAGES_DIR = ROOT / "product_images"
+DEFAULT_EXCEL_PATH = ROOT / "output_results.xlsx"
 OUT_DIR = ROOT / "ml" / "data"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -180,6 +180,25 @@ def save_csv_index(data: list[dict], path: Path) -> None:
     print(f"  Saved CSV index    → {path.relative_to(ROOT)}")
 
 
+def validate_image_group_sizes(groups: dict[str, list[str]], strict: bool = False) -> None:
+    """
+    Validate that each product has the expected 3-4 images.
+    Raises ValueError in strict mode, otherwise prints warnings.
+    """
+    invalid = {pid: len(paths) for pid, paths in groups.items() if len(paths) not in (3, 4)}
+    if not invalid:
+        return
+
+    preview = ", ".join(f"{pid}:{count}" for pid, count in sorted(invalid.items())[:10])
+    message = (
+        f"Found {len(invalid)} products without 3-4 images. "
+        f"Examples -> {preview}"
+    )
+    if strict:
+        raise ValueError(message)
+    print(f"[WARN] {message}")
+
+
 def print_summary(train: list[dict], test: list[dict]) -> None:
     total = len(train) + len(test)
     n_train_img = sum(e["num_images"] for e in train)
@@ -207,16 +226,42 @@ def main():
     parser = argparse.ArgumentParser(description="Prepare train/test dataset splits")
     parser.add_argument("--test-size", type=float, default=0.2, help="Fraction for test set (default: 0.2)")
     parser.add_argument("--seed",      type=int,   default=42,  help="Random seed (default: 42)")
+    parser.add_argument(
+        "--excel",
+        type=str,
+        default=str(DEFAULT_EXCEL_PATH),
+        help="Path to ground-truth Excel file (default: output_results.xlsx)",
+    )
+    parser.add_argument(
+        "--images-dir",
+        type=str,
+        default=str(DEFAULT_IMAGES_DIR),
+        help="Path to product images directory (default: product_images/)",
+    )
+    parser.add_argument(
+        "--strict-image-count",
+        action="store_true",
+        help="Fail if any product does not have exactly 3-4 images",
+    )
     args = parser.parse_args()
 
-    print(f"\n[1/4] Loading ground-truth labels from {EXCEL_PATH.name} …")
-    labels = load_excel_labels(EXCEL_PATH)
+    excel_path = Path(args.excel).resolve()
+    images_dir = Path(args.images_dir).resolve()
+
+    if not excel_path.exists():
+        raise FileNotFoundError(f"Ground-truth Excel file not found: {excel_path}")
+    if not images_dir.exists():
+        raise FileNotFoundError(f"Images directory not found: {images_dir}")
+
+    print(f"\n[1/4] Loading ground-truth labels from {excel_path.name} …")
+    labels = load_excel_labels(excel_path)
     print(f"      {len(labels)} product rows loaded.")
 
-    print(f"\n[2/4] Scanning images in {IMAGES_DIR.name}/ …")
-    groups = group_images_by_product(IMAGES_DIR)
+    print(f"\n[2/4] Scanning images in {images_dir.name}/ …")
+    groups = group_images_by_product(images_dir)
     total_imgs = sum(len(v) for v in groups.values())
     print(f"      {total_imgs} images across {len(groups)} product groups.")
+    validate_image_group_sizes(groups, strict=args.strict_image_count)
 
     print("\n[3/4] Building dataset (positional match: sorted ProductID → Excel row) …")
     dataset = build_dataset(labels, groups)

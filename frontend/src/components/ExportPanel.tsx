@@ -18,7 +18,10 @@ export default function ExportPanel({ selectedIds, totalCount }: ExportPanelProp
     setLoading(format);
     try {
       const response = await fetch(url);
-      if (!response.ok) throw new Error(`Export failed: ${response.status}`);
+      if (!response.ok) {
+        const detail = await response.text();
+        throw new Error(`Export failed: ${response.status} ${detail}`);
+      }
       const blob = await response.blob();
       const objectUrl = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -30,7 +33,8 @@ export default function ExportPanel({ selectedIds, totalCount }: ExportPanelProp
       URL.revokeObjectURL(objectUrl);
     } catch (err) {
       console.error("Export failed", err);
-      alert("Export failed. Make sure the backend is running.");
+      const message = err instanceof Error ? err.message : "Unknown export error";
+      alert(message);
     } finally {
       setLoading(null);
     }
