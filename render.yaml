@@ -5,7 +5,7 @@ services:
     dockerfilePath: ./backend/Dockerfile
     dockerContext: ./backend
     plan: free
-    healthCheckPath: /api/products/
+    healthCheckPath: /
     envVars:
       - key: DEBUG
         value: "True"   # Temporarily True to expose error details; set back to False once stable
