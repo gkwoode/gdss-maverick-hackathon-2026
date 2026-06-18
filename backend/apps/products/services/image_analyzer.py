@@ -88,13 +88,13 @@ EMPTY_STRING_FIELDS = {"variant", "fragrance_flavor", "promotion", "addons", "ta
 def _preprocess_image(image_bytes: bytes) -> bytes:
     """Resize and mildly sharpen the image before sending to the model."""
     img = Image.open(BytesIO(image_bytes)).convert("RGB")
-    max_side = 1600
+    max_side = 1024  # 1024px is sufficient for label text; smaller payload = faster API round-trip
     if max(img.size) > max_side:
         img.thumbnail((max_side, max_side), Image.LANCZOS)
     img = img.filter(ImageFilter.SHARPEN)
     img = ImageEnhance.Contrast(img).enhance(1.1)
     buf = BytesIO()
-    img.save(buf, format="JPEG", quality=92)
+    img.save(buf, format="JPEG", quality=85)  # 85 vs 92: ~30% smaller with no visible quality loss
     return buf.getvalue()
 
 
@@ -210,7 +210,7 @@ def _gpt4o_extract(image_bytes: bytes) -> dict[str, Any]:
             },
         ],
         response_format={"type": "json_object"},
-        max_tokens=800,
+        max_tokens=500,
         temperature=0.0,
     )
 

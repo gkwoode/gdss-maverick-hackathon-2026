@@ -1,5 +1,6 @@
 import base64
 import logging
+from concurrent.futures import ThreadPoolExecutor
 from io import BytesIO
 
 from django.http import HttpResponse
@@ -93,17 +94,30 @@ class IMDBRecordViewSet(ModelViewSet):
         return qs.distinct()
 
     # ------------------------------------------------------------------
-    # Internal helper: encode image as a base64 data URI
-    # Storing as data URI avoids Render's ephemeral filesystem — the image
-    # lives in the database and survives redeploys.
+    # Internal helpers
     # ------------------------------------------------------------------
     def _image_to_data_uri(self, img_bytes: bytes) -> str:
+        """Thumbnail and base64-encode an image for DB storage."""
         img = Image.open(BytesIO(img_bytes)).convert("RGB")
         img.thumbnail((600, 600), Image.LANCZOS)
         buf = BytesIO()
         img.save(buf, format="JPEG", quality=80)
         b64 = base64.b64encode(buf.getvalue()).decode("utf-8")
         return f"data:image/jpeg;base64,{b64}"
+
+    def _process_one(self, img_bytes: bytes) -> tuple[str | None, dict | None, str | None]:
+        """Encode + analyse a single image. Returns (data_uri, cleaned, error)."""
+        try:
+            data_uri = self._image_to_data_uri(img_bytes)
+        except Exception as exc:
+            logger.warning("Failed to encode image: %s", exc)
+            data_uri = None
+        try:
+            raw = analyze_image(img_bytes)
+            return data_uri, validate_and_normalise(raw), None
+        except Exception as exc:
+            logger.warning("Failed to analyse image: %s", exc)
+            return data_uri, None, str(exc)
 
     # ------------------------------------------------------------------
     # Single-image analyze
@@ -170,23 +184,19 @@ class IMDBRecordViewSet(ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+        all_bytes = [img_file.read() for img_file in images]
+
         per_image_results = []
         saved_paths = []
         errors = []
-        for img_file in images:
-            img_bytes = img_file.read()
-            try:
-                saved_paths.append(self._image_to_data_uri(img_bytes))
-            except Exception as exc:
-                logger.warning("Failed to encode image '%s': %s", img_file.name, exc)
-
-            try:
-                raw = analyze_image(img_bytes)
-                cleaned = validate_and_normalise(raw)
-                per_image_results.append(cleaned)
-            except Exception as exc:
-                logger.warning("Failed to analyze image '%s': %s", img_file.name, exc)
-                errors.append(str(exc))
+        with ThreadPoolExecutor(max_workers=min(len(all_bytes), 5)) as pool:
+            for data_uri, cleaned, error in pool.map(self._process_one, all_bytes):
+                if data_uri:
+                    saved_paths.append(data_uri)
+                if cleaned:
+                    per_image_results.append(cleaned)
+                elif error:
+                    errors.append(error)
 
         if not per_image_results:
             return Response(
