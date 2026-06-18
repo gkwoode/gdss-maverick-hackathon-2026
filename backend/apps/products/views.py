@@ -1,11 +1,9 @@
-import json
+import base64
 import logging
-import uuid
-from pathlib import Path
+from io import BytesIO
 
-from django.core.files.base import ContentFile
-from django.core.files.storage import default_storage
 from django.http import HttpResponse
+from PIL import Image
 from rest_framework import status
 from rest_framework.decorators import action, api_view
 from rest_framework.parsers import FormParser, MultiPartParser
@@ -95,15 +93,17 @@ class IMDBRecordViewSet(ModelViewSet):
         return qs.distinct()
 
     # ------------------------------------------------------------------
-    # Internal helper: persist an uploaded image and return its URL path
+    # Internal helper: encode image as a base64 data URI
+    # Storing as data URI avoids Render's ephemeral filesystem — the image
+    # lives in the database and survives redeploys.
     # ------------------------------------------------------------------
-    def _save_image(self, img_file) -> str:
-        """Save an uploaded image file to MEDIA_ROOT and return its relative path."""
-        ext = img_file.name.rsplit(".", 1)[-1].lower() if "." in img_file.name else "jpg"
-        filename = f"product_images/{uuid.uuid4().hex}.{ext}"
-        img_file.seek(0)
-        saved_path = default_storage.save(filename, ContentFile(img_file.read()))
-        return saved_path
+    def _image_to_data_uri(self, img_bytes: bytes) -> str:
+        img = Image.open(BytesIO(img_bytes)).convert("RGB")
+        img.thumbnail((600, 600), Image.LANCZOS)
+        buf = BytesIO()
+        img.save(buf, format="JPEG", quality=80)
+        b64 = base64.b64encode(buf.getvalue()).decode("utf-8")
+        return f"data:image/jpeg;base64,{b64}"
 
     # ------------------------------------------------------------------
     # Single-image analyze
@@ -122,8 +122,6 @@ class IMDBRecordViewSet(ModelViewSet):
 
         img_file = serializer.validated_data["image"]
         image_bytes = img_file.read()
-        img_file.seek(0)
-        saved_path = self._save_image(img_file)
 
         try:
             raw = analyze_image(image_bytes)
@@ -138,7 +136,7 @@ class IMDBRecordViewSet(ModelViewSet):
         confidence = cleaned.pop("confidence", {})
         method = cleaned.pop("method", "unknown")
         duplicates = find_duplicates(cleaned)
-        cleaned["image_paths"] = [saved_path]
+        cleaned["image_paths"] = [self._image_to_data_uri(image_bytes)]
 
         return Response(
             {
@@ -177,11 +175,10 @@ class IMDBRecordViewSet(ModelViewSet):
         errors = []
         for img_file in images:
             img_bytes = img_file.read()
-            # Persist the image file
             try:
-                saved_paths.append(self._save_image(img_file))
+                saved_paths.append(self._image_to_data_uri(img_bytes))
             except Exception as exc:
-                logger.warning("Failed to save image '%s': %s", img_file.name, exc)
+                logger.warning("Failed to encode image '%s': %s", img_file.name, exc)
 
             try:
                 raw = analyze_image(img_bytes)

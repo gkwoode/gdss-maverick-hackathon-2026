@@ -94,10 +94,11 @@ export function buildExportUrl(format: ExportFormat, ids?: number[]): string {
   return `${base}?${params.toString()}`;
 }
 
-/** Convert a relative media path (e.g. "product_images/abc.jpg") to a full URL. */
+/** Convert a media path to a displayable URL.
+ *  Handles data URIs (base64), absolute URLs, and legacy relative paths. */
 export function mediaUrl(path: string | null | undefined): string | null {
   if (!path) return null;
-  if (path.startsWith("http")) return path;
+  if (path.startsWith("data:") || path.startsWith("http")) return path;
   const base = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api").replace(/\/api$/, "");
   return `${base}/media/${path}`;
 }
