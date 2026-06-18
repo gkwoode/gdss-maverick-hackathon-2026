@@ -86,7 +86,9 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+# CompressedStaticFilesStorage (no manifest) avoids 500s on fresh deployments
+# where collectstatic hasn't run yet or the manifest file is missing
+STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
 
 MEDIA_URL = os.getenv("MEDIA_URL", "/media/")
 MEDIA_ROOT = BASE_DIR / os.getenv("MEDIA_ROOT", "media")
