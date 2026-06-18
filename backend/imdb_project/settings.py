@@ -59,12 +59,11 @@ WSGI_APPLICATION = "imdb_project.wsgi.application"
 _DATABASE_URL = os.getenv("DATABASE_URL", "")
 if _DATABASE_URL:
     import dj_database_url
-    # Render PostgreSQL requires SSL; conn_max_age=600 enables persistent connections
+    # psycopg3 (psycopg[binary]) handles SSL via the connection URL automatically
     DATABASES = {
         "default": dj_database_url.config(
             default=_DATABASE_URL,
             conn_max_age=600,
-            ssl_require=True,
         )
     }
 else:
