@@ -1,14 +1,25 @@
 services:
   - type: web
     name: gdss-maverick-backend
-    runtime: docker
-    dockerfilePath: ./backend/Dockerfile
-    dockerContext: ./backend
+    runtime: python
+    # Render is running native Python (not Docker) — use buildCommand/startCommand
+    buildCommand: >-
+      cd backend &&
+      pip install -r requirements.txt &&
+      python manage.py collectstatic --noinput
+    startCommand: >-
+      cd backend &&
+      python manage.py migrate --noinput &&
+      gunicorn imdb_project.wsgi:application
+      --bind 0.0.0.0:$PORT
+      --workers 2
+      --timeout 120
+      --log-level info
     plan: free
     healthCheckPath: /
     envVars:
       - key: DEBUG
-        value: "True"   # Temporarily True to expose error details; set back to False once stable
+        value: "True"   # Temporarily True; set back to False once stable
       - key: SECRET_KEY
         generateValue: true
       - key: ALLOWED_HOSTS
@@ -27,6 +38,8 @@ services:
         value: "media"
       - key: MEDIA_URL
         value: "/media/"
+      - key: DJANGO_SETTINGS_MODULE
+        value: "imdb_project.settings"
 
 databases:
   - name: gdss-maverick-db
