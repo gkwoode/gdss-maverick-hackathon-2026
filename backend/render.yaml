@@ -4,6 +4,8 @@ services:
     runtime: docker
     dockerfilePath: ./backend/Dockerfile
     dockerContext: ./backend
+    plan: free
+    healthCheckPath: /api/products/
     envVars:
       - key: DEBUG
         value: "False"
@@ -11,20 +13,21 @@ services:
         generateValue: true
       - key: ALLOWED_HOSTS
         value: ".onrender.com,.vercel.app"
+      - key: CORS_ALLOWED_ORIGINS
+        value: "https://gdss-maverick-hackathon-2026.vercel.app"
+      - key: CORS_ALLOW_ALL_ORIGINS
+        value: "False"
       - key: OPENAI_API_KEY
         sync: false
-      - key: CORS_ALLOWED_ORIGINS
-        value: "https://gdss-maverick-hackathon-2026.vercel.app,http://localhost:3000,http://localhost:3002"
       - key: DATABASE_URL
         fromDatabase:
           name: gdss-maverick-db
           property: connectionString
+      - key: MEDIA_ROOT
+        value: "media"
+      - key: MEDIA_URL
+        value: "/media/"
 
 databases:
   - name: gdss-maverick-db
     plan: free
-    envVars:
-      - key: POSTGRES_USER
-        value: postgres
-      - key: POSTGRES_PASSWORD
-        value: postgres
