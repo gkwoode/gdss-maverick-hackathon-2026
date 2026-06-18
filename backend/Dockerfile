@@ -23,6 +23,10 @@ RUN chown -R appuser:appuser /app
 
 USER appuser
 
+# Create media directory (writable by appuser)
+RUN mkdir -p /app/media /app/staticfiles
+
 EXPOSE 8000
 
-CMD ["gunicorn", "imdb_project.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "2", "--timeout", "120"]
+# Run migrations, collect static, then start gunicorn
+CMD ["sh", "-c", "python manage.py migrate --noinput && python manage.py collectstatic --noinput && gunicorn imdb_project.wsgi:application --bind 0.0.0.0:8000 --workers 2 --timeout 120 --log-level info"]
