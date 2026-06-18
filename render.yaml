@@ -6,8 +6,8 @@ services:
     buildCommand: cd backend && pip install -r requirements.txt && python manage.py collectstatic --noinput
     # preDeployCommand runs BEFORE traffic switches — migrate here for zero-downtime deploys
     preDeployCommand: cd backend && python manage.py migrate --noinput
-    # startCommand is pure gunicorn — migrate is done in preDeployCommand
-    startCommand: cd backend && gunicorn imdb_project.wsgi:application --bind 0.0.0.0:$PORT --workers 2 --timeout 120 --log-level info
+    # migrate runs here because preDeployCommand is a paid-plan feature and is skipped on free tier
+    startCommand: cd backend && python manage.py migrate --noinput && gunicorn imdb_project.wsgi:application --bind 0.0.0.0:$PORT --workers 2 --timeout 120 --log-level info
     plan: free
     healthCheckPath: /
     envVars:
