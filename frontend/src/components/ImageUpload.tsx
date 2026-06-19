@@ -1,8 +1,8 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
-import { ImagePlus, X, Loader2, Upload, Images } from "lucide-react";
+import { X, Loader2, Upload, Images } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface ImageUploadProps {
@@ -17,6 +17,13 @@ interface Preview {
 
 export default function ImageUpload({ onAnalyze, isLoading }: ImageUploadProps) {
   const [previews, setPreviews] = useState<Preview[]>([]);
+  const [mobile, setMobile] = useState(false);
+
+  useEffect(() => {
+    setMobile(/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent));
+  }, []);
+
+  const maxFiles = mobile ? 5 : 10;
 
   const onDrop = useCallback((accepted: File[]) => {
     const next = accepted.map((f) => ({
@@ -24,7 +31,6 @@ export default function ImageUpload({ onAnalyze, isLoading }: ImageUploadProps) 
       url: URL.createObjectURL(f),
     }));
     setPreviews((prev) => {
-      // revoke old URLs to avoid memory leaks
       prev.forEach((p) => URL.revokeObjectURL(p.url));
       return next;
     });
@@ -33,7 +39,7 @@ export default function ImageUpload({ onAnalyze, isLoading }: ImageUploadProps) 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: { "image/*": [".jpg", ".jpeg", ".png", ".webp", ".heic"] },
-    maxFiles: 10,
+    maxFiles,
     maxSize: 20 * 1024 * 1024,
     disabled: isLoading,
   });
@@ -74,11 +80,16 @@ export default function ImageUpload({ onAnalyze, isLoading }: ImageUploadProps) 
               {isDragActive ? "Drop images here" : "Upload product images"}
             </p>
             <p className="text-sm text-gray-500 mt-0.5">
-              Add <strong>3–10 images</strong> of different sides for best results.
-              {" "}Drag &amp; drop or{" "}
-              <span className="text-brand-600 font-medium">browse</span>.
+              Add <strong>3–{maxFiles} images</strong> of different sides for best results.
+              {!mobile && (
+                <> Drag &amp; drop or{" "}
+                  <span className="text-brand-600 font-medium">browse</span>.
+                </>
+              )}
             </p>
-            <p className="text-xs text-gray-400 mt-1">JPG, PNG, WebP · max 20 MB each · up to 10 files</p>
+            <p className="text-xs text-gray-400 mt-1">
+              JPG, PNG, WebP · max 20 MB each · up to {maxFiles} files
+            </p>
           </div>
         </div>
       </div>
@@ -96,6 +107,7 @@ export default function ImageUpload({ onAnalyze, isLoading }: ImageUploadProps) 
               />
               {!isLoading && (
                 <button
+                  type="button"
                   onClick={(e) => { e.stopPropagation(); removeImage(i); }}
                   className="absolute top-1 right-1 p-1 bg-white/80 rounded-full shadow opacity-0 group-hover:opacity-100 transition-opacity"
                   aria-label={`Remove image ${i + 1}`}
@@ -114,6 +126,7 @@ export default function ImageUpload({ onAnalyze, isLoading }: ImageUploadProps) 
       {/* Analyze button */}
       {previews.length > 0 && (
         <button
+          type="button"
           onClick={handleAnalyze}
           disabled={isLoading}
           className={cn(
@@ -139,4 +152,3 @@ export default function ImageUpload({ onAnalyze, isLoading }: ImageUploadProps) 
     </div>
   );
 }
-

@@ -38,31 +38,48 @@ sys.path.insert(0, str(ML_DIR))
 from backend_client import _load_env  # noqa: E402
 _load_env()
 
-# ── Prompt template ────────────────────────────────────────────────────────────
-SYSTEM_PROMPT = """You are an expert IMDB (Item Master Data Base) data extractor for FMCG products.
-Given one or more product images, extract the following 13 attributes exactly as they appear on the label:
+# -- Prompt templates (must match _FT_SYSTEM_PROMPT in image_analyzer.py) -------
+SYSTEM_PROMPT = (
+    "You are a strict product-label reader for a retail IMDB system. "
+    "Your ONLY job is to READ and TRANSCRIBE text that is physically "
+    "printed on the product label in the image. "
+    "NEVER guess, infer, complete, or use any knowledge you have about "
+    "this brand or product — even if you recognise it. "
+    "If a field value is not clearly visible on this specific image, "
+    "return null (or empty string for optional fields). "
+    "Accuracy is more important than completeness: "
+    "a null is always better than an invented or assumed value.\n\n"
+    "Return ONLY a valid JSON object with these exact keys:\n"
+    "item_name, barcode, manufacturer, brand, weight, packaging_type, "
+    "country, variant, product_type, fragrance_flavor, promotion, "
+    "addons, tagline\n\n"
+    "Field notes:\n"
+    "  item_name      – construct in ALL CAPS by assembling in order:\n"
+    "                   BRAND + PRODUCT_DESCRIPTION + WEIGHT + PACKAGING +\n"
+    "                   MANUFACTURER (include only parts visible on label).\n"
+    "                   Example: 'BLUE BAND SPREAD FOR BREAD 250G PLASTIC TUB UPFIELD GHANA LTD'\n"
+    "                   null only if brand AND product description are both unreadable\n"
+    "  barcode        – digits only (8-14 digits); null if ANY digit is unclear\n"
+    "  manufacturer   – copy ONLY from 'Manufactured by'/'Made by'/'Distributed by' text;"
+    " null if phrase absent\n"
+    "  brand          – copy brand name exactly as printed; null if absent\n"
+    "  weight         – copy net weight/volume exactly (e.g. 250G, 500 ML)\n"
+    "  packaging_type – TUB/BOTTLE/CAN/JAR/SACHET/BOX/BAG/POUCH/TETRA PAK\n"
+    "  country        – from 'Made in X'/'Packed in X' only; null if absent\n"
+    "  variant        – variant text (ORIGINAL, LOW FAT...); '' if absent\n"
+    "  product_type   – category text on label; null if not printed\n"
+    "  fragrance_flavor – flavour/scent text; '' if absent\n"
+    "  promotion      – promo text verbatim; '' if absent\n"
+    "  addons         – bundled extras text; '' if absent\n"
+    "  tagline        – slogan text; '' if absent\n\n"
+    "Do not include any explanation outside the JSON."
+)
 
-1. ITEM_NAME        – Full descriptive product name (BRAND + WEIGHT + PACKAGING + PRODUCT TYPE + MANUFACTURER)
-2. BARCODE          – Numeric barcode digits only
-3. MANUFACTURER     – Full legal name of manufacturing company
-4. BRAND            – Brand name as printed on label
-5. WEIGHT           – Net weight/volume with unit in UPPERCASE (e.g. 250G, 500 ML, 1.5 KG)
-6. PACKAGING TYPE   – Packaging form: TUB / BOTTLE / CAN / JAR / SACHET / BOX / BAG / POUCH / TUBE / TETRA PAK
-7. COUNTRY          – Country of manufacture or packing
-8. VARIANT          – Product variant (ORIGINAL, LOW FAT, LIGHT, SALTED, etc.) — empty string if none
-9. PRODUCT TYPE     – Product category (MARGARINE, MAYONNAISE, BUTTER, YOGHURT, JUICE, etc.)
-10. FRAGRANCE_FLAVOR – Flavor or fragrance — empty string if not applicable
-11. PROMOTION       – On-pack promo text (e.g. 50% OFF) — empty string if none
-12. ADDONS          – Bundled extras (e.g. SPOON INCLUDED) — empty string if none
-13. TAGLINE         – Short promotional tagline printed on pack — empty string if none
-
-Return ONLY a valid JSON object with these exact keys:
-item_name, barcode, manufacturer, brand, weight, packaging_type, country,
-variant, product_type, fragrance_flavor, promotion, addons, tagline
-
-Do not include any explanation outside the JSON."""
-
-EXTRACTION_PROMPT = "Extract all 13 IMDB attributes from the product image(s) and return them as a JSON object."
+EXTRACTION_PROMPT = (
+    "Read the product label(s) in the image(s) and extract all 13 IMDB "
+    "attributes. Only transcribe text you can clearly see — return null "
+    "for any field not printed on this label."
+)
 
 
 
@@ -78,9 +95,9 @@ def build_conversation(entry: dict) -> dict:
     Build a single fine-tuning conversation dict for one product entry.
 
     Messages format:
-      system  → extraction instructions
-      user    → image(s) + extraction prompt
-      assistant → ground-truth JSON
+      system  -> extraction instructions
+      user    -> image(s) + extraction prompt
+      assistant -> ground-truth JSON
     """
     # Build user content: up to 4 images (cost control for fine-tuning)
     image_paths = entry["images"][:4]
@@ -126,7 +143,7 @@ def write_jsonl(conversations: list[dict], path: Path) -> None:
         for conv in conversations:
             f.write(json.dumps(conv, ensure_ascii=False) + "\n")
     size_kb = path.stat().st_size / 1024
-    print(f"  Saved {len(conversations):3d} examples → {path.relative_to(ROOT)}  ({size_kb:.1f} KB)")
+    print(f"  Saved {len(conversations):3d} examples -> {path.relative_to(ROOT)}  ({size_kb:.1f} KB)")
 
 
 def upload_and_finetune(
@@ -141,20 +158,20 @@ def upload_and_finetune(
 
     client = OpenAI()
 
-    print("\n[Uploading training file …]")
+    print("\n[Uploading training file ...]")
     with open(train_jsonl, "rb") as f:
         train_file = client.files.create(file=f, purpose="fine-tune")
     print(f"  Training file ID: {train_file.id}")
 
     val_file_id = None
     if val_jsonl.exists() and val_jsonl.stat().st_size > 0:
-        print("[Uploading validation file …]")
+        print("[Uploading validation file ...]")
         with open(val_jsonl, "rb") as f:
             val_file = client.files.create(file=f, purpose="fine-tune")
         val_file_id = val_file.id
         print(f"  Validation file ID: {val_file_id}")
 
-    print(f"\n[Launching fine-tuning job: {model}, {n_epochs} epochs …]")
+    print(f"\n[Launching fine-tuning job: {model}, {n_epochs} epochs ...]")
     kwargs = {
         "training_file": train_file.id,
         "model": model,
@@ -177,10 +194,10 @@ def upload_and_finetune(
     out = DATA_DIR / "finetune_job.json"
     with open(out, "w") as f:
         json.dump(job_info, f, indent=2)
-    print(f"\n  Job info saved → {out.relative_to(ROOT)}")
+    print(f"\n  Job info saved -> {out.relative_to(ROOT)}")
 
 
-# ── Main ───────────────────────────────────────────────────────────────────────
+# -- Main -----------------------------------------------------------------------
 
 def main():
     parser = argparse.ArgumentParser(description="Build OpenAI fine-tuning JSONL from train.json")
@@ -196,7 +213,7 @@ def main():
         print(f"[ERROR] {train_json} not found. Run prepare_dataset.py first.")
         sys.exit(1)
 
-    print(f"\n[1/3] Loading train.json …")
+    print(f"\n[1/3] Loading train.json ...")
     with open(train_json) as f:
         train_data = json.load(f)
     print(f"      {len(train_data)} training products loaded.")
@@ -211,8 +228,8 @@ def main():
     finetune_data = shuffled[n_val:]
     print(f"      Fine-tune: {len(finetune_data)} | Validation: {len(val_data)}")
 
-    print("\n[2/3] Building conversation JSONL (encoding images as base64) …")
-    print("      This may take a minute for large image sets …")
+    print("\n[2/3] Building conversation JSONL (encoding images as base64) ...")
+    print("      This may take a minute for large image sets ...")
 
     train_convs = []
     skipped = 0

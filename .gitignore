@@ -49,4 +49,4 @@ Thumbs.db
 # other files
 product_images/
 output_results.xlsx
-vercel.json
+vercel.jsonml/data/*.jsonl

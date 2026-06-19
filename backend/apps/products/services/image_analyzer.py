@@ -11,13 +11,11 @@ Strategy (in priority order):
 """
 
 import base64
-import csv
 import json
 import logging
 import os
 import re
 from io import BytesIO
-from pathlib import Path
 from typing import Any
 
 from PIL import Image, ImageEnhance, ImageFilter
@@ -85,35 +83,39 @@ _PRODUCT_TYPE_KEYWORDS: list[tuple[str, list[str]]] = [
 # ---------------------------------------------------------------------------
 
 _FT_SYSTEM_PROMPT = (
-    "You are an expert IMDB (Item Master Data Base) data extractor "
-    "for FMCG products. Given one or more product images, extract "
-    "the following 13 attributes exactly as they appear on the label:\n\n"
-    "1. ITEM_NAME        – Full descriptive product name "
-    "(BRAND + WEIGHT + PACKAGING + PRODUCT TYPE + MANUFACTURER)\n"
-    "2. BARCODE          – Numeric barcode digits only\n"
-    "3. MANUFACTURER     – Full legal name of manufacturing company\n"
-    "4. BRAND            – Brand name as printed on label\n"
-    "5. WEIGHT           – Net weight/volume with unit in UPPERCASE "
-    "(e.g. 250G, 500 ML, 1.5 KG)\n"
-    "6. PACKAGING TYPE   – Packaging form: TUB / BOTTLE / CAN / JAR "
-    "/ SACHET / BOX / BAG / POUCH / TUBE / TETRA PAK\n"
-    "7. COUNTRY          – Country of manufacture or packing\n"
-    "8. VARIANT          – Product variant (ORIGINAL, LOW FAT, LIGHT, "
-    "SALTED, etc.) — empty string if none\n"
-    "9. PRODUCT TYPE     – Product category "
-    "(MARGARINE, MAYONNAISE, BUTTER, YOGHURT, JUICE, etc.)\n"
-    "10. FRAGRANCE_FLAVOR – Flavor or fragrance "
-    "— empty string if not applicable\n"
-    "11. PROMOTION       – On-pack promo text (e.g. 50% OFF) "
-    "— empty string if none\n"
-    "12. ADDONS          – Bundled extras (e.g. SPOON INCLUDED) "
-    "— empty string if none\n"
-    "13. TAGLINE         – Short promotional tagline on pack "
-    "— empty string if none\n\n"
+    "You are a strict product-label reader for a retail IMDB system. "
+    "Your ONLY job is to READ and TRANSCRIBE text that is physically "
+    "printed on the product label in the image. "
+    "NEVER guess, infer, complete, or use any knowledge you have about "
+    "this brand or product — even if you recognise it. "
+    "If a field value is not clearly visible on this specific image, "
+    "return null (or empty string for optional fields). "
+    "Accuracy is more important than completeness: "
+    "a null is always better than an invented or assumed value.\n\n"
     "Return ONLY a valid JSON object with these exact keys:\n"
-    "item_name, barcode, manufacturer, brand, weight, "
-    "packaging_type, country, variant, product_type, "
-    "fragrance_flavor, promotion, addons, tagline\n\n"
+    "item_name, barcode, manufacturer, brand, weight, packaging_type, "
+    "country, variant, product_type, fragrance_flavor, promotion, "
+    "addons, tagline\n\n"
+    "Field notes:\n"
+    "  item_name      – ALL CAPS assembled string:\n"
+    "                   BRAND + PRODUCT_DESC + WEIGHT + PACKAGING"
+    " + MANUFACTURER\n"
+    "                   (only include parts visible on this label)\n"
+    "                   null only if brand AND description both unreadable\n"
+    "  barcode        – digits only (8-14 digits);"
+    " null if ANY digit unclear\n"
+    "  manufacturer   – from 'Manufactured by'/'Made by'/"
+    "'Distributed by' only; null if absent\n"
+    "  brand          – copy brand name exactly as printed; null if absent\n"
+    "  weight         – copy net weight/volume exactly (e.g. 250G, 500 ML)\n"
+    "  packaging_type – TUB/BOTTLE/CAN/JAR/SACHET/BOX/BAG/POUCH/TETRA PAK\n"
+    "  country        – from 'Made in X'/'Packed in X' only; null if absent\n"
+    "  variant        – variant text (ORIGINAL, LOW FAT...); '' if absent\n"
+    "  product_type   – category text on label; null if not printed\n"
+    "  fragrance_flavor – flavour/scent text; '' if absent\n"
+    "  promotion      – promo text verbatim; '' if absent\n"
+    "  addons         – bundled extras text; '' if absent\n"
+    "  tagline        – slogan text; '' if absent\n\n"
     "Do not include any explanation outside the JSON."
 )
 
@@ -127,61 +129,31 @@ _FT_EXTRACTION_PROMPT = (
 # ---------------------------------------------------------------------------
 
 _SYSTEM_PROMPT = (
-    "You are a product-data extraction specialist for a retail IMDB system. "
-    "Your goal is to capture as much accurate information as possible from "
-    "product images. Extract every field you can see — partial information "
-    "with a low confidence score is always better than returning null. "
-    "Return null ONLY when a field is completely absent from the image. "
-    "Never invent values, but do read and infer from all visible text."
+    "You are a strict product-label reader for a retail IMDB system. "
+    "Your ONLY job is to READ and TRANSCRIBE text that is physically "
+    "printed on the product label in the image. "
+    "NEVER guess, infer, complete, or use any knowledge you have about "
+    "this brand or product — even if you recognise it. "
+    "If a field value is not clearly visible on this specific image, "
+    "return null. Accuracy is more important than completeness: "
+    "a null is always better than an invented or assumed value."
 )
 
+_EXTRACTION_PROMPT = """Read the product label in this image and extract
+the 13 IMDB attributes listed below.
 
-def _load_few_shot_text() -> str:
-    """Load few-shot text examples from training CSV, or '' if unavailable."""
-    # image_analyzer.py lives at backend/apps/products/services/
-    # parents[4] is the project root (gdss-maverick-hackathon-2026/)
-    csv_path = (
-        Path(__file__).resolve().parents[4] / "ml" / "data" / "train_index.csv"
-    )
-    if not csv_path.exists():
-        return ""
-    try:
-        with open(csv_path, newline="", encoding="utf-8") as fh:
-            rows = list(csv.DictReader(fh))
-    except Exception:
-        return ""
-
-    seen_types: set[str] = set()
-    examples: list[str] = []
-    for row in rows:
-        pt = row.get("product_type", "").strip()
-        item = row.get("item_name", "").strip()
-        if pt in seen_types or not item:
-            continue
-        seen_types.add(pt)
-        label = {f: row.get(f, "") for f in IMDB_FIELDS}
-        examples.append(json.dumps(label, ensure_ascii=False))
-        if len(examples) >= 3:
-            break
-
-    if not examples:
-        return ""
-
-    lines = [
-        "",
-        "── EXAMPLE OUTPUTS (West African FMCG ground-truth) ──────────────",
-    ]
-    for i, ex in enumerate(examples, 1):
-        lines.append(f"Example {i}: {ex}")
-    lines.append(
-        "──────────────────────────────────────────────────────────────────"
-    )
-    return "\n".join(lines)
-
-
-_FEW_SHOT_TEXT = _load_few_shot_text()
-
-_EXTRACTION_PROMPT = """Extract the 13 product attributes from this image.
+STRICT RULES — read these before extracting:
+  • Only transcribe text you can CLEARLY SEE on this specific label.
+  • Do NOT use your general knowledge about the brand or product.
+  • Do NOT guess, complete, or construct any value.
+  • If a field is not printed on this image, return null (or "" for
+    the fields marked with "").
+  • A null is always correct when text is absent or unreadable.
+  • MANUFACTURER WARNING: You likely know which company makes this
+    brand from your training data. IGNORE that knowledge. Only return
+    a manufacturer if the words "Manufactured by", "Made by", or
+    "Produced by" followed by a company name are physically printed
+    and legible on THIS label. Otherwise return null.
 
 Return EXACTLY this JSON — field values AND a nested confidence object:
 
@@ -200,82 +172,94 @@ Return EXACTLY this JSON — field values AND a nested confidence object:
   "addons": <string | "">,
   "tagline": <string | "">,
   "confidence": {
-    "item_name": 0.0,
-    "barcode": 0.0,
-    "manufacturer": 0.0,
-    "brand": 0.0,
-    "weight": 0.0,
-    "packaging_type": 0.0,
-    "country": 0.0,
-    "variant": 0.0,
-    "product_type": 0.0,
-    "fragrance_flavor": 0.0,
-    "promotion": 0.0,
-    "addons": 0.0,
-    "tagline": 0.0
+    "item_name": 0.0, "barcode": 0.0, "manufacturer": 0.0,
+    "brand": 0.0, "weight": 0.0, "packaging_type": 0.0,
+    "country": 0.0, "variant": 0.0, "product_type": 0.0,
+    "fragrance_flavor": 0.0, "promotion": 0.0,
+    "addons": 0.0, "tagline": 0.0
   }
 }
 
 ── FIELD RULES ──────────────────────────────────────────────────────────────
 
-item_name: The complete product name. Read in this order:
-  1. Any sticker or label at the BOTTOM of the image — read it verbatim.
-  2. If no bottom sticker, CONSTRUCT the name from visible pack text:
-       Brand + product description + weight + packaging type
-       Example: brand="Cowbell", desc="Powdered Milk", weight="400G",
-       pack="TIN" → "Cowbell Powdered Milk 400G Tin"
-  3. If only brand is visible: "BrandName product" is acceptable.
-  DO NOT return null unless the image contains no product name information
-  at all. Even a partial name is better than null.
+item_name: Construct a full item identifier in UPPERCASE by assembling these
+  parts in order, separated by spaces:
+    1. Brand name (as printed on label)
+    2. Key product description / variant text from the label
+       (e.g. "CHOLESTEROL FREE SPREAD FOR BREAD", "MAYONNAISE WITH LEMON")
+    3. Net weight/volume (e.g. 250G, 500ML, 1.5KG)
+    4. Packaging material + form (e.g. PLASTIC TUB, GLASS JAR, SACHET,
+       PLASTIC BOTTLE)
+    5. Manufacturer / distributor name visible on label (from
+       "Manufactured by", "Distributed by", "Made by" text)
+  Use ALL CAPS. Do NOT add punctuation between parts.
+  Example: "BLUE BAND SPREAD 250G PLASTIC TUB UPFIELD GHANA LTD"
+  null only if the brand AND product description are both unreadable.
 
-barcode: Barcode digits ONLY (8–14 digits, no spaces or dashes).
-  null only if barcode is entirely unreadable.
+barcode: Read EVERY digit printed below the barcode lines with 100% certainty.
+  Digits only, no spaces or dashes (8–14 digits).
+  CRITICAL: If even ONE digit is unclear, blurred, or you have any doubt,
+  return null — a barcode scanner will be used instead. A wrong digit is
+  far worse than null. Only return a value when you can read every single
+  character with complete confidence.
 
-manufacturer: Exact company name from "Manufactured by" / "Made by" text.
-  null if not printed on this image.
+manufacturer: The label MUST contain the exact words "Manufactured by",
+  "Made by", or "Produced by" followed by a company name for this field
+  to be non-null. Copy the company name character-for-character.
+  • Do NOT return the manufacturer because you know which company owns
+    this brand — even if you are certain.
+  • Do NOT complete a partially-visible company name from your knowledge.
+  • "Distributed by" and "Imported by" are NOT the manufacturer.
+  null if the required phrase is absent or the company name is unreadable.
 
-brand: Primary brand name as printed. Look for the largest/most prominent
-  text on the front face. null only if completely invisible.
-
-weight: Net weight or volume in UPPERCASE. Format:
-    Single-char units (G, L): no space → 250G, 2L
-    Multi-char units (KG, ML, OZ): space → 1.5 KG, 500 ML
+brand: Copy the brand name exactly as printed on the label.
   null if not visible.
 
-packaging_type: Choose EXACTLY ONE (or null if truly ambiguous):
-  TUB, GLASS JAR, SACHET, BOTTLE, CAN, BOX, BAG, POUCH,
-  TETRA PAK, TUBE, JAR
+weight: Copy the net weight or volume exactly as printed (e.g. 250G,
+  500 ML, 1.5 KG). Uppercase units only.
+  null if not printed on this image.
 
-country: Country from an explicit "Made in X" or "Packed in X" statement.
-  null if no such statement is visible.
+packaging_type: Identify from what you can physically see in the image.
+  Choose EXACTLY ONE: TUB, GLASS JAR, SACHET, BOTTLE, CAN, BOX, BAG,
+  POUCH, TETRA PAK, TUBE, JAR.
+  null if the package type is genuinely unclear.
 
-variant: Variant printed on pack (ORIGINAL, LOW FAT, LIGHT, FULL CREAM …).
+country: Copy ONLY from an explicit "Made in X" / "Packed in X" /
+  "Product of X" statement printed on the label.
+  null if this exact statement is not present.
+
+variant: Copy variant text printed on pack (e.g. ORIGINAL, LOW FAT,
+  LIGHT, SALTED). "" if no variant text is printed.
+
+product_type: Copy the product category text printed on the label
+  (e.g. MARGARINE, JUICE, POWDER, ENERGY DRINK).
+  Do NOT use your knowledge of the brand — only read label text.
+  null if no category text is printed on this image.
+
+fragrance_flavor: Copy flavour or scent text printed on the label
+  (e.g. STRAWBERRY, VANILLA, LEMON). "" if not printed.
+
+promotion: Copy any promotional text printed on the label verbatim
+  (e.g. "BUY 2 GET 1 FREE", "20% EXTRA FREE"). "" if none.
+
+addons: Copy any bundled-extras text printed on the label
+  (e.g. "FREE SPOON INSIDE"). "" if none.
+
+tagline: Copy the short slogan or tagline printed on the label.
   "" if none.
-
-product_type: Product category UPPERCASE. Infer from the product description,
-  brand, or category text on the label.
-  Examples: MARGARINE, BUTTER, JUICE, OIL, MILK, JAM, SAUCE, YOGHURT.
-  null only if completely unclear.
-
-fragrance_flavor: ONLY actual flavours or scents (STRAWBERRY, VANILLA …).
-  Do NOT put variant names here. "" if none.
-
-promotion: Verbatim on-pack promotion text. "" if none.
-addons: Included extras (e.g. SPOON INCLUDED). "" if none.
-tagline: Short slogan/tagline printed on pack. "" if none.
 
 ── CONFIDENCE RULES ─────────────────────────────────────────────────────────
 
-Rate each field 0.0–1.0 based on how clearly you can see the value:
-  0.9–1.0  Clearly legible, 100% certain
-  0.6–0.9  Readable but slightly obscured or partially cut off
-  0.3–0.6  Partially visible, requires some inference from context
-  0.0–0.3  Barely visible or highly uncertain
+Rate each field 0.0–1.0 based on how clearly you can READ the text:
+  0.9–1.0  Text is fully legible, 100% certain of every character
+  0.6–0.9  Text is readable but slightly blurred or partially cut off
+  0.3–0.6  Text is partially visible, some characters unclear
+  0.0–0.3  Text is mostly unreadable
 
-A confidence of 0.3 with a value is BETTER than null when some
-information is visible. Return null ONLY when there is no information
-to extract for that field from this image.
-""" + _FEW_SHOT_TEXT
+If you cannot read a field clearly enough to be at least 30% confident,
+return null — do not guess. Null is always the correct answer when the
+text is absent or unreadable.
+"""
 
 
 # ---------------------------------------------------------------------------
@@ -490,6 +474,13 @@ def analyze_image(image_bytes: bytes) -> dict[str, Any]:
     """
     processed = _preprocess_image(image_bytes)
 
+    # Run pyzbar on both original and preprocessed bytes — resizing can
+    # sometimes degrade barcode patterns so try both.
+    barcode_pyzbar = (
+        extract_barcode_pyzbar(image_bytes)
+        or extract_barcode_pyzbar(processed)
+    )
+
     try:
         result = _gpt4o_extract(processed)
         logger.info("GPT-4o extraction succeeded (model=%s)", _MODEL)
@@ -499,12 +490,11 @@ def analyze_image(image_bytes: bytes) -> dict[str, Any]:
         )
         result = _ocr_fallback(processed)
 
-    # pyzbar always overrides barcode — more reliable than vision
-    if not result.get("barcode"):
-        barcode = extract_barcode_pyzbar(processed)
-        if barcode:
-            result["barcode"] = barcode
-            result.setdefault("confidence", {})["barcode"] = 0.98
+    # pyzbar reads the actual barcode pattern — always beats visual digit
+    # reading. Override GPT-4o's barcode unconditionally when pyzbar succeeds.
+    if barcode_pyzbar:
+        result["barcode"] = barcode_pyzbar
+        result.setdefault("confidence", {})["barcode"] = 0.98
 
     # Ensure all fields and confidence keys are present
     conf = result.get("confidence", {})

@@ -28,14 +28,14 @@ from pathlib import Path
 
 import pandas as pd
 
-# ── Paths ─────────────────────────────────────────────────────────────────────
+# -- Paths ---------------------------------------------------------------------
 ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_IMAGES_DIR = ROOT / "product_images"
 DEFAULT_EXCEL_PATH = ROOT / "output_results.xlsx"
 OUT_DIR = ROOT / "ml" / "data"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
-# ── Ground-truth column mapping (Excel header → canonical key) ────────────────
+# -- Ground-truth column mapping (Excel header -> canonical key) ----------------
 COLUMN_MAP = {
     "ITEM_NAME":        "item_name",
     "BARCODE":          "barcode",
@@ -60,7 +60,7 @@ LABEL_FIELDS = [
 ]
 
 
-# ── Helpers ────────────────────────────────────────────────────────────────────
+# -- Helpers --------------------------------------------------------------------
 
 def load_excel_labels(path: Path) -> list[dict]:
     """Return a list of label dicts, one per row in the Excel file."""
@@ -83,7 +83,7 @@ def load_excel_labels(path: Path) -> list[dict]:
             if raw is None or (isinstance(raw, float) and math.isnan(raw)):
                 label[field] = ""
             elif field == "barcode":
-                # Barcodes stored as float (e.g. 6.034e12) → integer string
+                # Barcodes stored as float (e.g. 6.034e12) -> integer string
                 try:
                     label[field] = str(int(float(raw)))
                 except (ValueError, TypeError):
@@ -147,7 +147,7 @@ def split_dataset(
     seed: int = 42,
 ) -> tuple[list[dict], list[dict]]:
     """
-    Splits at the product level (each product → either train OR test, never both).
+    Splits at the product level (each product -> either train OR test, never both).
     Shuffles deterministically with `seed` before splitting.
     """
     items = dataset.copy()
@@ -167,7 +167,7 @@ def split_dataset(
 def save_json(data, path: Path) -> None:
     with open(path, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2, ensure_ascii=False)
-    print(f"  Saved {len(data):3d} records → {path.relative_to(ROOT)}")
+    print(f"  Saved {len(data):3d} records -> {path.relative_to(ROOT)}")
 
 
 def save_csv_index(data: list[dict], path: Path) -> None:
@@ -177,7 +177,7 @@ def save_csv_index(data: list[dict], path: Path) -> None:
         row.update(entry["labels"])
         rows.append(row)
     pd.DataFrame(rows).to_csv(path, index=False)
-    print(f"  Saved CSV index    → {path.relative_to(ROOT)}")
+    print(f"  Saved CSV index    -> {path.relative_to(ROOT)}")
 
 
 def validate_image_group_sizes(groups: dict[str, list[str]], strict: bool = False) -> None:
@@ -204,9 +204,9 @@ def print_summary(train: list[dict], test: list[dict]) -> None:
     n_train_img = sum(e["num_images"] for e in train)
     n_test_img  = sum(e["num_images"] for e in test)
     print()
-    print("═" * 50)
+    print("=" * 50)
     print("  DATASET SPLIT SUMMARY")
-    print("═" * 50)
+    print("=" * 50)
     print(f"  Total products : {total}")
     print(f"  Train products : {len(train)}  ({len(train)/total:.0%})  |  {n_train_img} images")
     print(f"  Test  products : {len(test)}   ({len(test)/total:.0%})  |  {n_test_img} images")
@@ -215,12 +215,12 @@ def print_summary(train: list[dict], test: list[dict]) -> None:
     for field in LABEL_FIELDS:
         count = sum(1 for e in train if e["labels"].get(field, ""))
         pct = count / len(train) * 100
-        bar = "█" * int(pct / 5)
+        bar = "#" * int(pct / 5)
         print(f"    {field:<20} {count:3d}/{len(train)}  {pct:5.1f}%  {bar}")
-    print("═" * 50)
+    print("=" * 50)
 
 
-# ── Main ───────────────────────────────────────────────────────────────────────
+# -- Main -----------------------------------------------------------------------
 
 def main():
     parser = argparse.ArgumentParser(description="Prepare train/test dataset splits")
@@ -253,21 +253,21 @@ def main():
     if not images_dir.exists():
         raise FileNotFoundError(f"Images directory not found: {images_dir}")
 
-    print(f"\n[1/4] Loading ground-truth labels from {excel_path.name} …")
+    print(f"\n[1/4] Loading ground-truth labels from {excel_path.name} ...")
     labels = load_excel_labels(excel_path)
     print(f"      {len(labels)} product rows loaded.")
 
-    print(f"\n[2/4] Scanning images in {images_dir.name}/ …")
+    print(f"\n[2/4] Scanning images in {images_dir.name}/ ...")
     groups = group_images_by_product(images_dir)
     total_imgs = sum(len(v) for v in groups.values())
     print(f"      {total_imgs} images across {len(groups)} product groups.")
     validate_image_group_sizes(groups, strict=args.strict_image_count)
 
-    print("\n[3/4] Building dataset (positional match: sorted ProductID → Excel row) …")
+    print("\n[3/4] Building dataset (positional match: sorted ProductID -> Excel row) ...")
     dataset = build_dataset(labels, groups)
     print(f"      {len(dataset)} matched products.")
 
-    print(f"\n[4/4] Splitting: test_size={args.test_size:.0%}, seed={args.seed} …")
+    print(f"\n[4/4] Splitting: test_size={args.test_size:.0%}, seed={args.seed} ...")
     train_set, test_set = split_dataset(dataset, test_size=args.test_size, seed=args.seed)
 
     # Annotate split in full dataset

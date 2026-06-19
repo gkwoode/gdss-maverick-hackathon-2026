@@ -59,16 +59,26 @@ export async function analyzeImage(file: File): Promise<AnalyzeResult> {
 }
 
 // --------------------------
-// Compress image in-browser before upload
-// Reduces mobile camera photos from ~5 MB → ~300 KB and converts HEIC to JPEG.
+// Compress image in-browser before upload.
+// Converts HEIC/PNG/WebP → JPEG and resizes to fit within maxPx.
+// The backend caps at 1400px, so 1024px on desktop passes through unchanged
+// and uses ~75% fewer GPT-4o vision tokens than 1920px.
+// On mobile we go smaller still to keep uploads fast on cellular.
 // Falls back to the original file if the canvas API is unavailable.
 // --------------------------
 
-async function compressImage(
-  file: File,
-  maxPx = 1920,
-  quality = 0.82
-): Promise<Blob> {
+function isMobileDevice(): boolean {
+  return (
+    typeof navigator !== "undefined" &&
+    /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
+  );
+}
+
+async function compressImage(file: File): Promise<Blob> {
+  const mobile = isMobileDevice();
+  const maxPx = mobile ? 800 : 1024;
+  const quality = mobile ? 0.75 : 0.80;
+
   return new Promise((resolve) => {
     const img = new Image();
     const objectUrl = URL.createObjectURL(file);
