@@ -26,40 +26,102 @@ logger = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------
 
 _SYSTEM_PROMPT = (
-    "You are an expert product-label analyst for a retail company. "
-    "Your job is to read product images and extract structured data for "
-    "an Item Master Database (IMDB). Be precise; only report what is "
-    "clearly visible on the label or in the image tag. "
-    "Never hallucinate brand names, weights, barcodes, or countries. "
-    "If a field is not visible, return null."
+    "You are a product-data extraction specialist. "
+    "Extract ONLY what is explicitly printed and clearly legible "
+    "in the image. "
+    "Your #1 rule: return null for any field you are not certain about. "
+    "A null is always better than a wrong value. "
+    "Never invent, assume, or carry knowledge from other products "
+    "into your answer."
 )
 
-_EXTRACTION_PROMPT = """Analyze the product image carefully and return a single JSON object with EXACTLY these keys:
+_EXTRACTION_PROMPT = """Extract the 13 product attributes from this image.
+
+Return EXACTLY this JSON — field values AND a nested confidence object:
 
 {
-  "item_name": "<CRITICAL: Extract from the image tag/label at the BOTTOM of the image FIRST. This contains the canonical product name. Use it verbatim. If no visible tag, try to infer from package labels. Examples: 'Blue Band Margarine Original 500G Tub', 'Rama Butter 250G Glass Jar'. If truly unable to determine, null>",
-  "barcode": "<Numeric barcode digits only, no spaces or dashes. Use pyzbar if available. If barcode visible but unclear, null>",
-  "manufacturer": "<Full legal name of the manufacturing company as printed. Search for 'Manufactured by', 'Made by', or company name on label. If not found, null>",
-  "brand": "<Brand name exactly as printed on label. The primary brand identifier. If not clearly visible, null>",
-  "weight": "<Net weight or volume with unit in UPPERCASE format. Examples: '250G', '1.5 KG', '500 ML', '2L'. Format: AmountUNIT (no space for single-letter units like G, L; space for multi-letter units like KG, ML). If not visible, null>",
-  "packaging_type": "<Packaging form in UPPERCASE. Choose from: TUB, GLASS JAR, SACHET, BOTTLE, CAN, BOX, BAG, POUCH, TETRA PAK, TUBE, JAR. If ambiguous, null>",
-  "country": "<Country of manufacture or packing as explicitly stated on label (e.g., 'Made in India', 'Packed in Ghana'). Return the country name. If not visible, null>",
-  "variant": "<Product variant if clearly labeled, e.g. 'ORIGINAL', 'LOW FAT', 'LIGHT', 'FULL CREAM', 'SMOOTH', 'CRUNCHY'. Empty string '' if no variant or not applicable>",
-  "product_type": "<Product category in UPPERCASE. Examples: MARGARINE, MAYONNAISE, BUTTER, YOGHURT, JUICE, OIL, MILK, JAM, SAUCE. Infer from product description if needed. If unclear, null>",
-  "fragrance_flavor": "<ONLY actual taste/scent flavors, e.g. 'STRAWBERRY', 'VANILLA', 'CHOCOLATE', 'HONEY', 'LEMON'. Do NOT include variants like 'ORIGINAL', 'LIGHT', or packaging details. Empty string '' if no specific flavor or not applicable>",
-  "promotion": "<On-pack promotion text verbatim, e.g. '50% OFF', 'BUY 2 GET 1 FREE', 'FREE SAMPLE INCLUDED'. Empty string '' if none visible>",
-  "addons": "<Additional features or pack contents, e.g. 'SPOON INCLUDED', 'FREE RECIPE BOOK', 'BONUS PACK'. Empty string '' if none>",
-  "tagline": "<Short promotional or descriptive tagline printed on the pack, e.g. 'The Original Taste', 'Naturally Fresh'. Empty string '' if none>"
+  "item_name": <string | null>,
+  "barcode": <string | null>,
+  "manufacturer": <string | null>,
+  "brand": <string | null>,
+  "weight": <string | null>,
+  "packaging_type": <string | null>,
+  "country": <string | null>,
+  "variant": <string | "">,
+  "product_type": <string | null>,
+  "fragrance_flavor": <string | "">,
+  "promotion": <string | "">,
+  "addons": <string | "">,
+  "tagline": <string | "">,
+  "confidence": {
+    "item_name": 0.0,
+    "barcode": 0.0,
+    "manufacturer": 0.0,
+    "brand": 0.0,
+    "weight": 0.0,
+    "packaging_type": 0.0,
+    "country": 0.0,
+    "variant": 0.0,
+    "product_type": 0.0,
+    "fragrance_flavor": 0.0,
+    "promotion": 0.0,
+    "addons": 0.0,
+    "tagline": 0.0
+  }
 }
 
-Critical Rules:
-1. ALWAYS read the image tag/label at the BOTTOM of the image FIRST for item_name — it is the authoritative source.
-2. Use null (JSON null) ONLY for fields where the value cannot be determined from the visible image content.
-3. Use empty string "" ONLY for: variant, fragrance_flavor, promotion, addons, tagline when the field is not applicable.
-4. Weight format: Amount + Unit (uppercase). Single-letter units (G, L): no space (250G). Multi-letter units (KG, ML, OZ, etc.): space before (1.5 KG).
-5. fragrance_flavor must be actual flavor/scent ONLY — never include variant information here.
-6. Extract exactly what you see. Do not hallucinate, guess, or infer beyond what is visible.
-7. If a field is ambiguous or unclear, use null rather than guessing.
+── FIELD RULES ──────────────────────────────────────────────────────────────
+
+item_name   : Full product name. FIRST check any sticker/label at the bottom
+              of the image — that is the canonical source. Read it verbatim.
+              If no bottom label, read from the main pack. null if uncertain.
+
+barcode     : Barcode digits ONLY (8–14 digits, no spaces or dashes).
+              null if barcode is not clearly readable — do NOT guess digits.
+
+manufacturer: Exact company name from "Manufactured by" / "Made by" text.
+              null if not printed on this image.
+
+brand       : Primary brand name as printed on the front face. null if not
+              clearly legible.
+
+weight      : Net weight or volume in UPPERCASE. Format rules:
+                Single-char units (G, L): no space → 250G, 2L
+                Multi-char units (KG, ML, OZ): space → 1.5 KG, 500 ML
+              null if not visible.
+
+packaging_type: Choose EXACTLY ONE from this list (or null if ambiguous):
+              TUB, GLASS JAR, SACHET, BOTTLE, CAN, BOX, BAG, POUCH,
+              TETRA PAK, TUBE, JAR
+
+country     : Country from an explicit "Made in X" or "Packed in X" statement.
+              null if no such statement is visible.
+
+variant     : Variant label printed on pack (ORIGINAL, LOW FAT, LIGHT, etc.).
+              "" if no variant label exists.
+
+product_type: Category in UPPERCASE (MARGARINE, BUTTER, JUICE, OIL, MILK …).
+              Only use what is clearly identifiable from the image. null if
+              you cannot determine it from visible text alone.
+
+fragrance_flavor: ONLY actual flavours or scents (STRAWBERRY, VANILLA …).
+              Do NOT put variant names here. "" if no specific flavour/scent.
+
+promotion   : Verbatim on-pack promotion text. "" if none.
+addons      : Included extras (e.g. SPOON INCLUDED). "" if none.
+tagline     : Short slogan/tagline printed on pack. "" if none.
+
+── CONFIDENCE RULES ─────────────────────────────────────────────────────────
+
+Rate each field 0.0–1.0:
+  0.9–1.0  Clearly legible, no doubt
+  0.6–0.9  Readable but slightly obscured
+  0.3–0.6  Partially visible or requires inference
+  0.0–0.3  Mostly guessing
+
+If your confidence for a nullable field (item_name, barcode, manufacturer,
+brand, weight, packaging_type, country, product_type) is below 0.5,
+set that field to null — do not return a low-confidence guess.
 """
 
 # ---------------------------------------------------------------------------
@@ -82,19 +144,21 @@ IMDB_FIELDS = [
 ]
 
 # Fields that should default to "" (empty string) rather than null when absent
-EMPTY_STRING_FIELDS = {"variant", "fragrance_flavor", "promotion", "addons", "tagline"}
+EMPTY_STRING_FIELDS = {
+    "variant", "fragrance_flavor", "promotion", "addons", "tagline"
+}
 
 
 def _preprocess_image(image_bytes: bytes) -> bytes:
     """Resize and mildly sharpen the image before sending to the model."""
     img = Image.open(BytesIO(image_bytes)).convert("RGB")
-    max_side = 1024  # 1024px is sufficient for label text; smaller payload = faster API round-trip
+    max_side = 1024  # sufficient for label text; smaller = faster upload
     if max(img.size) > max_side:
         img.thumbnail((max_side, max_side), Image.LANCZOS)
     img = img.filter(ImageFilter.SHARPEN)
     img = ImageEnhance.Contrast(img).enhance(1.1)
     buf = BytesIO()
-    img.save(buf, format="JPEG", quality=85)  # 85 vs 92: ~30% smaller with no visible quality loss
+    img.save(buf, format="JPEG", quality=85)  # ~30% smaller than q=92
     return buf.getvalue()
 
 
@@ -133,7 +197,8 @@ def _ocr_fallback(image_bytes: bytes) -> dict[str, Any]:
         img = Image.open(BytesIO(image_bytes)).convert("RGB")
         text = pytesseract.image_to_string(img)
     except Exception as exc:
-        if "tesseract is not installed" in str(exc).lower() or "not in your path" in str(exc).lower():
+        msg = str(exc).lower()
+        if "tesseract is not installed" in msg or "not in your path" in msg:
             logger.warning(
                 "Tesseract OCR is not available (%s). "
                 "Install it to enable the OCR fallback: "
@@ -210,16 +275,32 @@ def _gpt4o_extract(image_bytes: bytes) -> dict[str, Any]:
             },
         ],
         response_format={"type": "json_object"},
-        max_tokens=500,
+        max_tokens=700,
         temperature=0.0,
     )
 
     raw = json.loads(response.choices[0].message.content)
-    # Compute confidence from field presence — 0.92 if value present, 0.0 if null/empty
-    raw["confidence"] = {
-        f: 0.92 if raw.get(f) not in (None, "") else 0.0
-        for f in IMDB_FIELDS
-    }
+
+    # Use the model's own per-field confidence scores.
+    # Fall back to 0.7 (not 0.92) if the model omitted the key.
+    model_conf = raw.pop("confidence", None)
+    if isinstance(model_conf, dict):
+        conf = {f: float(model_conf.get(f, 0.0)) for f in IMDB_FIELDS}
+    else:
+        conf = {
+            f: 0.7 if raw.get(f) not in (None, "") else 0.0
+            for f in IMDB_FIELDS
+        }
+
+    # Safety net: null out any nullable field the model rated below 0.5.
+    # This enforces the prompt rule in code even if the model slips.
+    nullable = set(IMDB_FIELDS) - EMPTY_STRING_FIELDS
+    for field in nullable:
+        if conf.get(field, 0.0) < 0.5 and raw.get(field) is not None:
+            raw[field] = None
+            conf[field] = 0.0
+
+    raw["confidence"] = conf
     raw["method"] = "gpt4o"
     return raw
 
