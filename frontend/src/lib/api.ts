@@ -59,12 +59,51 @@ export async function analyzeImage(file: File): Promise<AnalyzeResult> {
 }
 
 // --------------------------
+// Compress image in-browser before upload
+// Reduces mobile camera photos from ~5 MB → ~300 KB and converts HEIC to JPEG.
+// Falls back to the original file if the canvas API is unavailable.
+// --------------------------
+
+async function compressImage(
+  file: File,
+  maxPx = 1920,
+  quality = 0.82
+): Promise<Blob> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    const objectUrl = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(objectUrl);
+      const scale = Math.min(1, maxPx / Math.max(img.width, img.height));
+      const w = Math.round(img.width * scale);
+      const h = Math.round(img.height * scale);
+      const canvas = document.createElement("canvas");
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) { resolve(file); return; }
+      ctx.drawImage(img, 0, 0, w, h);
+      canvas.toBlob(
+        (blob) => resolve(blob ?? file),
+        "image/jpeg",
+        quality,
+      );
+    };
+    img.onerror = () => { URL.revokeObjectURL(objectUrl); resolve(file); };
+    img.src = objectUrl;
+  });
+}
+
+// --------------------------
 // Analyze — multiple images (aggregate across 3-4 angles of same product)
 // --------------------------
 
 export async function analyzeImages(files: File[]): Promise<AnalyzeResult> {
   const form = new FormData();
-  files.forEach((f) => form.append("images", f));
+  for (const f of files) {
+    const blob = await compressImage(f);
+    form.append("images", blob, f.name.replace(/\.[^.]+$/, ".jpg"));
+  }
   const { data } = await api.post<AnalyzeResult>("/products/analyze_multi/", form);
   return data;
 }
