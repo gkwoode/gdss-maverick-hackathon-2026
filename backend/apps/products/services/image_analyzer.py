@@ -5,16 +5,19 @@ Primary attribute-extraction service for the 13-column IMDB schema.
 
 Strategy (in priority order):
   1. OpenAI GPT-4o Vision — structured JSON extraction of all 13 IMDB fields.
+     Set OPENAI_MODEL=ft:gpt-4o-mini-... to use a fine-tuned model instead.
   2. pyzbar — dedicated barcode decoder (supplements VLM barcode result).
   3. pytesseract OCR fallback — when no OpenAI key is configured.
 """
 
 import base64
+import csv
 import json
 import logging
 import os
 import re
 from io import BytesIO
+from pathlib import Path
 from typing import Any
 
 from PIL import Image, ImageEnhance, ImageFilter
@@ -22,7 +25,105 @@ from PIL import Image, ImageEnhance, ImageFilter
 logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
-# Prompt templates
+# Model selection
+# Set OPENAI_MODEL env var to use a fine-tuned model after training.
+# Fine-tuned model names start with "ft:"; inference then uses the training-
+# format prompt (no confidence scoring) to match what the model was trained on.
+# ---------------------------------------------------------------------------
+_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o")
+_IS_FINETUNED = _MODEL.startswith("ft:")
+
+# ---------------------------------------------------------------------------
+# Canonical 13 IMDB fields
+# ---------------------------------------------------------------------------
+IMDB_FIELDS = [
+    "item_name",
+    "barcode",
+    "manufacturer",
+    "brand",
+    "weight",
+    "packaging_type",
+    "country",
+    "variant",
+    "product_type",
+    "fragrance_flavor",
+    "promotion",
+    "addons",
+    "tagline",
+]
+
+# Fields that default to "" (empty string) rather than null when absent
+EMPTY_STRING_FIELDS = {
+    "variant", "fragrance_flavor", "promotion", "addons", "tagline"
+}
+
+# Keywords for OCR-based product_type detection
+_PRODUCT_TYPE_KEYWORDS: list[tuple[str, list[str]]] = [
+    ("MARGARINE", ["margarine"]),
+    ("BUTTER", ["butter"]),
+    ("MAYONNAISE", ["mayonnaise", "mayo"]),
+    ("YOGHURT", ["yoghurt", "yogurt"]),
+    ("MILK", ["milk", "powdered milk", "evaporated milk"]),
+    ("JUICE", ["juice", "nectar"]),
+    ("OIL", ["cooking oil", "vegetable oil", "palm oil", "sunflower oil"]),
+    ("JAM", ["jam", "jelly", "preserve"]),
+    ("SAUCE", ["sauce", "ketchup", "tomato paste"]),
+    ("CHEESE", ["cheese"]),
+    ("CREAM", ["cream", "sour cream", "whipping cream"]),
+    ("SUGAR", ["sugar", "icing sugar"]),
+    ("FLOUR", ["flour", "wheat flour"]),
+    ("SALT", ["salt", "table salt"]),
+    ("BISCUIT", ["biscuit", "cookie", "crackers"]),
+    ("CHOCOLATE", ["chocolate"]),
+    ("BEVERAGE", ["beverage", "drink", "energy drink"]),
+]
+
+# ---------------------------------------------------------------------------
+# Fine-tuned model prompts
+# These MUST match ml/train_openai.py exactly — the fine-tuned model was
+# trained with this format; inference must use the same format.
+# ---------------------------------------------------------------------------
+
+_FT_SYSTEM_PROMPT = (
+    "You are an expert IMDB (Item Master Data Base) data extractor "
+    "for FMCG products. Given one or more product images, extract "
+    "the following 13 attributes exactly as they appear on the label:\n\n"
+    "1. ITEM_NAME        – Full descriptive product name "
+    "(BRAND + WEIGHT + PACKAGING + PRODUCT TYPE + MANUFACTURER)\n"
+    "2. BARCODE          – Numeric barcode digits only\n"
+    "3. MANUFACTURER     – Full legal name of manufacturing company\n"
+    "4. BRAND            – Brand name as printed on label\n"
+    "5. WEIGHT           – Net weight/volume with unit in UPPERCASE "
+    "(e.g. 250G, 500 ML, 1.5 KG)\n"
+    "6. PACKAGING TYPE   – Packaging form: TUB / BOTTLE / CAN / JAR "
+    "/ SACHET / BOX / BAG / POUCH / TUBE / TETRA PAK\n"
+    "7. COUNTRY          – Country of manufacture or packing\n"
+    "8. VARIANT          – Product variant (ORIGINAL, LOW FAT, LIGHT, "
+    "SALTED, etc.) — empty string if none\n"
+    "9. PRODUCT TYPE     – Product category "
+    "(MARGARINE, MAYONNAISE, BUTTER, YOGHURT, JUICE, etc.)\n"
+    "10. FRAGRANCE_FLAVOR – Flavor or fragrance "
+    "— empty string if not applicable\n"
+    "11. PROMOTION       – On-pack promo text (e.g. 50% OFF) "
+    "— empty string if none\n"
+    "12. ADDONS          – Bundled extras (e.g. SPOON INCLUDED) "
+    "— empty string if none\n"
+    "13. TAGLINE         – Short promotional tagline on pack "
+    "— empty string if none\n\n"
+    "Return ONLY a valid JSON object with these exact keys:\n"
+    "item_name, barcode, manufacturer, brand, weight, "
+    "packaging_type, country, variant, product_type, "
+    "fragrance_flavor, promotion, addons, tagline\n\n"
+    "Do not include any explanation outside the JSON."
+)
+
+_FT_EXTRACTION_PROMPT = (
+    "Extract all 13 IMDB attributes from the product image(s) "
+    "and return them as a JSON object."
+)
+
+# ---------------------------------------------------------------------------
+# Base model prompts (GPT-4o with per-field confidence scoring)
 # ---------------------------------------------------------------------------
 
 _SYSTEM_PROMPT = (
@@ -33,6 +134,52 @@ _SYSTEM_PROMPT = (
     "Return null ONLY when a field is completely absent from the image. "
     "Never invent values, but do read and infer from all visible text."
 )
+
+
+def _load_few_shot_text() -> str:
+    """Load few-shot text examples from training CSV, or '' if unavailable."""
+    # image_analyzer.py lives at backend/apps/products/services/
+    # parents[4] is the project root (gdss-maverick-hackathon-2026/)
+    csv_path = (
+        Path(__file__).resolve().parents[4] / "ml" / "data" / "train_index.csv"
+    )
+    if not csv_path.exists():
+        return ""
+    try:
+        with open(csv_path, newline="", encoding="utf-8") as fh:
+            rows = list(csv.DictReader(fh))
+    except Exception:
+        return ""
+
+    seen_types: set[str] = set()
+    examples: list[str] = []
+    for row in rows:
+        pt = row.get("product_type", "").strip()
+        item = row.get("item_name", "").strip()
+        if pt in seen_types or not item:
+            continue
+        seen_types.add(pt)
+        label = {f: row.get(f, "") for f in IMDB_FIELDS}
+        examples.append(json.dumps(label, ensure_ascii=False))
+        if len(examples) >= 3:
+            break
+
+    if not examples:
+        return ""
+
+    lines = [
+        "",
+        "── EXAMPLE OUTPUTS (West African FMCG ground-truth) ──────────────",
+    ]
+    for i, ex in enumerate(examples, 1):
+        lines.append(f"Example {i}: {ex}")
+    lines.append(
+        "──────────────────────────────────────────────────────────────────"
+    )
+    return "\n".join(lines)
+
+
+_FEW_SHOT_TEXT = _load_few_shot_text()
 
 _EXTRACTION_PROMPT = """Extract the 13 product attributes from this image.
 
@@ -128,59 +275,17 @@ Rate each field 0.0–1.0 based on how clearly you can see the value:
 A confidence of 0.3 with a value is BETTER than null when some
 information is visible. Return null ONLY when there is no information
 to extract for that field from this image.
-"""
+""" + _FEW_SHOT_TEXT
+
 
 # ---------------------------------------------------------------------------
-# Canonical 13 IMDB fields
+# Image pre-processing
 # ---------------------------------------------------------------------------
-IMDB_FIELDS = [
-    "item_name",
-    "barcode",
-    "manufacturer",
-    "brand",
-    "weight",
-    "packaging_type",
-    "country",
-    "variant",
-    "product_type",
-    "fragrance_flavor",
-    "promotion",
-    "addons",
-    "tagline",
-]
-
-# Fields that default to "" (empty string) rather than null when absent
-EMPTY_STRING_FIELDS = {
-    "variant", "fragrance_flavor", "promotion", "addons", "tagline"
-}
-
-# Keywords for OCR-based product_type detection
-_PRODUCT_TYPE_KEYWORDS: list[tuple[str, list[str]]] = [
-    ("MARGARINE", ["margarine"]),
-    ("BUTTER", ["butter"]),
-    ("MAYONNAISE", ["mayonnaise", "mayo"]),
-    ("YOGHURT", ["yoghurt", "yogurt"]),
-    ("MILK", ["milk", "powdered milk", "evaporated milk"]),
-    ("JUICE", ["juice", "nectar"]),
-    ("OIL", ["cooking oil", "vegetable oil", "palm oil", "sunflower oil"]),
-    ("JAM", ["jam", "jelly", "preserve"]),
-    ("SAUCE", ["sauce", "ketchup", "tomato paste"]),
-    ("CHEESE", ["cheese"]),
-    ("CREAM", ["cream", "sour cream", "whipping cream"]),
-    ("SUGAR", ["sugar", "icing sugar"]),
-    ("FLOUR", ["flour", "wheat flour"]),
-    ("SALT", ["salt", "table salt"]),
-    ("BISCUIT", ["biscuit", "cookie", "crackers"]),
-    ("CHOCOLATE", ["chocolate"]),
-    ("BEVERAGE", ["beverage", "drink", "energy drink"]),
-]
-
 
 def _preprocess_image(image_bytes: bytes) -> bytes:
     """Resize and enhance the image before sending to the model."""
     img = Image.open(BytesIO(image_bytes)).convert("RGB")
     # 1400px preserves fine-print legibility (country, manufacturer)
-    # while keeping payload size reasonable
     max_side = 1400
     if max(img.size) > max_side:
         img.thumbnail((max_side, max_side), Image.LANCZOS)
@@ -297,7 +402,8 @@ def _ocr_fallback(image_bytes: bytes) -> dict[str, Any]:
 
     # Manufacturer — look for "Manufactured by" / "Made by" patterns
     mfr_match = re.search(
-        r"(?:Manufactured|Produced|Distributed)\s+by[:\s]+([A-Za-z][^\n]{3,60})",
+        r"(?:Manufactured|Produced|Distributed)"
+        r"\s+by[:\s]+([A-Za-z][^\n]{3,60})",
         text,
         re.IGNORECASE,
     )
@@ -309,7 +415,7 @@ def _ocr_fallback(image_bytes: bytes) -> dict[str, Any]:
 
 
 # ---------------------------------------------------------------------------
-# GPT-4o Vision extraction
+# GPT-4o Vision extraction (base and fine-tuned)
 # ---------------------------------------------------------------------------
 
 def _gpt4o_extract(image_bytes: bytes) -> dict[str, Any]:
@@ -321,14 +427,19 @@ def _gpt4o_extract(image_bytes: bytes) -> dict[str, Any]:
     client = OpenAI(api_key=api_key)
     b64 = base64.b64encode(image_bytes).decode("utf-8")
 
+    # Fine-tuned models must use the same prompt they were trained with.
+    # Base gpt-4o uses the richer prompt that asks for per-field confidence.
+    system = _FT_SYSTEM_PROMPT if _IS_FINETUNED else _SYSTEM_PROMPT
+    user_text = _FT_EXTRACTION_PROMPT if _IS_FINETUNED else _EXTRACTION_PROMPT
+
     response = client.chat.completions.create(
-        model="gpt-4o",
+        model=_MODEL,
         messages=[
-            {"role": "system", "content": _SYSTEM_PROMPT},
+            {"role": "system", "content": system},
             {
                 "role": "user",
                 "content": [
-                    {"type": "text", "text": _EXTRACTION_PROMPT},
+                    {"type": "text", "text": user_text},
                     {
                         "type": "image_url",
                         "image_url": {
@@ -346,24 +457,22 @@ def _gpt4o_extract(image_bytes: bytes) -> dict[str, Any]:
 
     raw = json.loads(response.choices[0].message.content)
 
-    # Use the model's own per-field confidence scores.
-    # Fall back to 0.7 if the model omitted the confidence object.
+    # Base model returns per-field confidence; fine-tuned model does not.
+    # Assign 0.85 to every field the fine-tuned model extracted.
     model_conf = raw.pop("confidence", None)
     if isinstance(model_conf, dict):
         conf = {f: float(model_conf.get(f, 0.0)) for f in IMDB_FIELDS}
     else:
         conf = {
-            f: 0.7 if raw.get(f) not in (None, "") else 0.0
+            f: 0.85 if raw.get(f) not in (None, "") else 0.0
             for f in IMDB_FIELDS
         }
 
-    # Do NOT null out low-confidence values here — the aggregator across
-    # multiple images will pick the highest-confidence value per field.
-    # A low-confidence value from one image is still useful when other
-    # images may not show that field at all.
+    # Do NOT null out low-confidence values here — the multi-image aggregator
+    # picks the highest-confidence value per field across all images.
 
     raw["confidence"] = conf
-    raw["method"] = "gpt4o"
+    raw["method"] = "gpt4o-ft" if _IS_FINETUNED else "gpt4o"
     return raw
 
 
@@ -383,7 +492,7 @@ def analyze_image(image_bytes: bytes) -> dict[str, Any]:
 
     try:
         result = _gpt4o_extract(processed)
-        logger.info("GPT-4o extraction succeeded")
+        logger.info("GPT-4o extraction succeeded (model=%s)", _MODEL)
     except Exception as exc:
         logger.warning(
             "GPT-4o extraction failed (%s); falling back to OCR", exc

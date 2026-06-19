@@ -50,7 +50,7 @@ Given one or more product images, extract the following 13 attributes exactly as
 6. PACKAGING TYPE   – Packaging form: TUB / BOTTLE / CAN / JAR / SACHET / BOX / BAG / POUCH / TUBE / TETRA PAK
 7. COUNTRY          – Country of manufacture or packing
 8. VARIANT          – Product variant (ORIGINAL, LOW FAT, LIGHT, SALTED, etc.) — empty string if none
-9. TYPE             – Product category (MARGARINE, MAYONNAISE, BUTTER, YOGHURT, JUICE, etc.)
+9. PRODUCT TYPE     – Product category (MARGARINE, MAYONNAISE, BUTTER, YOGHURT, JUICE, etc.)
 10. FRAGRANCE_FLAVOR – Flavor or fragrance — empty string if not applicable
 11. PROMOTION       – On-pack promo text (e.g. 50% OFF) — empty string if none
 12. ADDONS          – Bundled extras (e.g. SPOON INCLUDED) — empty string if none
