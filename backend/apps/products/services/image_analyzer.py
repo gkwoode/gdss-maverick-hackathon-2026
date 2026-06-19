@@ -104,8 +104,9 @@ _FT_SYSTEM_PROMPT = (
     "                   null only if brand AND description both unreadable\n"
     "  barcode        – digits only (8-14 digits);"
     " null if ANY digit unclear\n"
-    "  manufacturer   – from 'Manufactured by'/'Made by'/"
-    "'Distributed by' only; null if absent\n"
+    "  manufacturer   – company name after any of: 'Manufactured by',"
+    " 'Made by', 'Distributed by', 'Marketed by', 'Imported by',"
+    " 'Packed by'; null if none present\n"
     "  brand          – copy brand name exactly as printed; null if absent\n"
     "  weight         – copy net weight/volume exactly (e.g. 250G, 500 ML)\n"
     "  packaging_type – TUB/BOTTLE/CAN/JAR/SACHET/BOX/BAG/POUCH/TETRA PAK\n"
@@ -151,9 +152,8 @@ STRICT RULES — read these before extracting:
   • A null is always correct when text is absent or unreadable.
   • MANUFACTURER WARNING: You likely know which company makes this
     brand from your training data. IGNORE that knowledge. Only return
-    a manufacturer if the words "Manufactured by", "Made by", or
-    "Produced by" followed by a company name are physically printed
-    and legible on THIS label. Otherwise return null.
+    a manufacturer if a company-attribution phrase (see manufacturer
+    field rules below) is physically printed on THIS label.
 
 Return EXACTLY this JSON — field values AND a nested confidence object:
 
@@ -203,14 +203,19 @@ barcode: Read EVERY digit printed below the barcode lines with 100% certainty.
   far worse than null. Only return a value when you can read every single
   character with complete confidence.
 
-manufacturer: The label MUST contain the exact words "Manufactured by",
-  "Made by", or "Produced by" followed by a company name for this field
-  to be non-null. Copy the company name character-for-character.
-  • Do NOT return the manufacturer because you know which company owns
-    this brand — even if you are certain.
-  • Do NOT complete a partially-visible company name from your knowledge.
-  • "Distributed by" and "Imported by" are NOT the manufacturer.
-  null if the required phrase is absent or the company name is unreadable.
+manufacturer: The label MUST contain a company-attribution phrase followed
+  by a company name. Accepted trigger phrases (copy the company name
+  that follows, in ALL CAPS):
+    "Manufactured by", "Made by", "Produced by",
+    "Distributed by", "Marketed by", "Imported by",
+    "Packed by", "Processed by"
+  Copy the full company name character-for-character exactly as printed.
+  • Do NOT return a manufacturer name from your general knowledge —
+    even if you are 100% certain which company owns this brand.
+  • Do NOT complete a partially-visible company name from memory.
+  • Return only the company name, not the trigger phrase itself.
+  null if none of the trigger phrases appear on this image, or the
+  company name after the phrase is unreadable.
 
 brand: Copy the brand name exactly as printed on the label.
   null if not visible.
@@ -224,9 +229,12 @@ packaging_type: Identify from what you can physically see in the image.
   POUCH, TETRA PAK, TUBE, JAR.
   null if the package type is genuinely unclear.
 
-country: Copy ONLY from an explicit "Made in X" / "Packed in X" /
-  "Product of X" statement printed on the label.
-  null if this exact statement is not present.
+country: Copy the country name from any of these phrases printed on
+  the label (return ONLY the country name, in ALL CAPS):
+    "Made in X", "Manufactured in X", "Produced in X",
+    "Packed in X", "Packaged in X", "Bottled in X",
+    "Product of X", "Country of origin: X"
+  null if none of these phrases appear on this image.
 
 variant: Copy variant text printed on pack (e.g. ORIGINAL, LOW FAT,
   LIGHT, SALTED). "" if no variant text is printed.
